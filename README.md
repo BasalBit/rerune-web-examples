@@ -36,7 +36,6 @@ Refresh results remain visible until the next manual check. Clean changes show *
 
 ## Boundaries
 
-- Browser apps need their app shell available to start. Cached or bundled translations alone do not make the entire app offline; these examples do not install a service worker.
 - Reactive translation consumers update. Previously saved strings, static pages, and prerendered output need recalculation or rebuilding.
 - Updates are asynchronous checks while the app runs, not push delivery or OS background work. All manifest languages are considered; a failed language can retain older copy.
 - Variants select among delivered project resources. They are not access controls.

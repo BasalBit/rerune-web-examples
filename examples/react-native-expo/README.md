@@ -39,7 +39,7 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 1. Start the app and confirm bundled English copy, date interpolation, and the story's plural examples. Switch to German and back.
 2. Configure your own project using its publishable OTA ID. Publish a root `welcome_title` translation, then trigger refresh. Reactive text should change.
 3. Publish a `vip` variation, select it, then reload or restart to check persistence. Return to Main.
-4. After a clean check, block the OTA service or a locale request while keeping the app shell available. Check again. Previous copy should remain available; a failed check must not advance the successful-check timestamp. A partial update identifies changed locales and also retains that timestamp.
+4. After a clean check, block the OTA service or a locale request. Check again. Previous copy should remain available; a failed check must not advance the successful-check timestamp. A partial update identifies changed locales and also retains that timestamp.
 
 The timestamp starts empty on launch and records clean manual checks, including checks with no visible changes. Automatic startup checks do not populate this display. It does not date every language's publication. A result with errors and no visible changes does not prove that every request failed.
 
