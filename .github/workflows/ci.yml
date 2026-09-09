@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   examples:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       CI: 'true'
       EXPO_NO_TELEMETRY: '1'
@@ -36,7 +36,7 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: python -m pip install -r scripts/requirements.txt
-      - run: python -m playwright install --with-deps chromium
+      - run: python -m playwright install chromium
       - run: pnpm test:browser
       - run: pnpm test:parity
       - run: pnpm export:android
