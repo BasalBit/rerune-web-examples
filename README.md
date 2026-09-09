@@ -24,7 +24,7 @@ pnpm dev:react
 
 Open [localhost:5173](http://127.0.0.1:5173). Choose another command from the table for Angular or Expo. Angular uses ports 4201 and 4202. No SDK source checkout, SDK build, private registry, or npm credentials are required.
 
-The apps use an approved public demonstration project by default. Each guide explains how to supply your own publishable read ID. Never use an administration credential. Console logging defaults to `off`.
+The apps use a public demonstration project by default. Each guide explains how to supply your own publishable read ID. Never use an administration credential. Console logging defaults to `off`.
 
 ![React welcome screen with bundled English copy](docs/screenshots/react-desktop-en-welcome.png)
 
@@ -46,4 +46,4 @@ Refresh results remain visible until the next manual check. Clean changes show *
 
 [ReRune](https://rerune.io) · [Developer guide](https://rerune.io/developer-localization-platform) · [Core](https://www.npmjs.com/package/@rerune/core) · [React](https://www.npmjs.com/package/@rerune/react) · [React Native](https://www.npmjs.com/package/@rerune/react-native) · [Angular](https://www.npmjs.com/package/@rerune/angular)
 
-For checks, CI, screenshots, and shared-asset maintenance, see [Contributing](CONTRIBUTING.md). Code and the approved writer/blacksmith artwork retain the [MIT notice](LICENSE). See [asset provenance](docs/assets.md).
+For checks, CI, screenshots, and shared-asset maintenance, see [Contributing](CONTRIBUTING.md). Code and the writer/blacksmith artwork retain the [MIT notice](LICENSE). See [asset provenance](docs/assets.md).

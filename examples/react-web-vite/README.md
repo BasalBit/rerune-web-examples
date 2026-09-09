@@ -17,7 +17,7 @@ Open [localhost:5173](http://127.0.0.1:5173). Run the command from the repositor
 
 ## Configure
 
-The approved public demo ID and `vip` variant are the defaults. To override them, create `examples/react-web-vite/.env` using [`.env.example`](.env.example), uncomment the settings, and supply your own values:
+The public demo ID and `vip` variant are the defaults. To override them, create `examples/react-web-vite/.env` using [`.env.example`](.env.example), uncomment the settings, and supply your own values:
 
 ```dotenv
 VITE_RERUNE_OTA_PUBLISH_ID=your-publishable-ota-id
@@ -30,7 +30,7 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration location
 
-[src/App.tsx](src/App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. SDK 1.2.0 snapshots managed bundled resources at setup; later writes to managed resources can be lost on reapplication. This example does not claim the behavior of a future SDK release.
+[src/App.tsx](src/App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. SDK 1.2.0 snapshots managed bundled resources at setup; later writes to managed resources can be lost on reapplication.
 
 ## Manual OTA check
 
@@ -45,16 +45,14 @@ The timestamp starts empty on launch and records clean manual checks, including 
 
 Checks are asynchronous while the app runs, not push delivery or OS background execution. All manifest languages are considered, and languages can retain different versions after a failure. Variants share access to the delivered project resources; they do not restrict access. Reactive consumers update; strings saved in variables and static output require recalculation.
 
-OTA grammar is plain text, declared interpolation, and one cardinal plural. Native bundled MessageFormat support does not add general ICU support to OTA messages. These examples do not exercise SSR or production DOM hydration.
+OTA grammar is plain text, declared interpolation, and one cardinal plural. Native bundled MessageFormat support does not add general ICU support to OTA messages.
 
-## Cache and platform limits
+## Translation cache
 
-The browser cache has a best-effort memory fallback when localStorage is unavailable or a write fails. That memory is not durable across reloads. In SDK 1.2.0 an older stored value can still win over the fallback on a later read. This guide does not claim the upcoming cache reliability changes.
-
-Chromium tests cover desktop and mobile viewport sizes. Safari, Firefox, physical touch devices, and production SSR hydration are unverified. Angular browser checks apply to the pinned Angular 18 app, not every Angular major.
+The browser cache has a best-effort memory fallback when localStorage is unavailable or a write fails. That memory is not durable across reloads. In SDK 1.2.0 an older stored value can still win over the fallback on a later read.
 
 ## Screenshot
 
 ![React web with i18next](../../docs/screenshots/react-desktop-en-welcome.png)
 
-See [Contributing](../../CONTRIBUTING.md) for automated checks and [asset provenance](../../docs/assets.md) for the approved artwork and MIT notice.
+See [Contributing](../../CONTRIBUTING.md) for automated checks and [asset provenance](../../docs/assets.md) for the artwork and MIT notice.
