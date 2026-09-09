@@ -1,0 +1,96 @@
+<div class="demo-background" (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
+  @if (screen() === 'welcome') {
+    <main class="screen-shell welcome-screen screen-enter">
+      <header class="welcome-copy">
+        <span class="badge-chip">{{ 'welcome_badge' | transloco }}</span>
+        <h1>{{ 'welcome_title' | transloco }}</h1>
+        <p>{{ 'welcome_subtitle' | transloco }}</p>
+      </header>
+      <div class="welcome-image-shell">
+        <img alt="" src="assets/writer-orb.png">
+        <div class="welcome-image-fade"></div>
+        <p class="welcome-publish-date">{{ 'publish_date' | transloco: { publish_date: date } }}</p>
+      </div>
+      <section aria-label="Localization status" class="status-card">
+        <div class="status-row">
+          <span>{{ 'welcome_locale_label' | transloco }}</span>
+          <select [attr.aria-label]="'welcome_locale_label' | transloco" [value]="locale()" (change)="language($event)">
+            @for (lang of availableLocales(); track lang) { <option [value]="lang">{{ lang }}</option> }
+          </select>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-row">
+          <span>{{ 'welcome_variant_label' | transloco }}</span>
+          <button [attr.aria-checked]="isTestVariantActive()" [attr.aria-label]="'welcome_variant_label' | transloco"
+            class="variant-switch" role="switch" type="button" (click)="toggleVariant()">
+            <strong class="variant-switch-value">{{ rerune.state().variant }}</strong>
+            <span aria-hidden="true" class="variant-switch-track"><span class="variant-switch-thumb"></span></span>
+          </button>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-row">
+          <span>{{ checkLabels(locale()).last }}</span>
+          <strong>{{ lastSynced() ?? checkLabels(locale()).empty }}</strong>
+        </div>
+      </section>
+      <button aria-live="polite" class="refresh-copy" [class.refresh-copy-success]="refreshPhase() === 'success'"
+        [disabled]="isRefreshing()" (click)="refresh()" type="button">
+        @if (isRefreshing()) { <span aria-hidden="true" class="spinner spinner-small"></span> }
+        {{ refreshText(refreshPhase(), locale(), updatedLocales()) }}
+      </button>
+      <button class="primary-button" (click)="screen.set('story')" type="button">{{ 'welcome_open_story_cta' | transloco }}</button>
+    </main>
+  } @else {
+    <main class="screen-shell story-screen screen-enter">
+      <button aria-label="Back" class="back-button" type="button" (click)="screen.set('welcome')">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+      </button>
+      <img alt="" class="story-image" src="assets/blacksmith.png">
+      <span class="badge-chip">{{ 'story_caption' | transloco }}</span>
+      <h1 class="story-title">{{ 'story_title' | transloco }}</h1>
+      <p class="story-copy">{{ 'story_body_primary' | transloco }}</p>
+      <p class="story-copy">{{ 'story_body_secondary' | transloco }}</p>
+      <div class="story-examples">
+        <p>{{ 'ammount_of_keys' | transloco: { count: 1 } }}</p>
+        <p>{{ 'ammount_of_keys' | transloco: { count: 4 } }}</p>
+      </div>
+      <button aria-live="polite" class="primary-button story-refresh-button" [disabled]="isRefreshing()" (click)="refresh()" type="button">
+        @if (isRefreshing()) { <span aria-hidden="true" class="spinner"></span> }
+        {{ refreshPhase() === 'idle' ? ('story_refresh_cta' | transloco) : refreshText(refreshPhase(), locale(), updatedLocales()) }}
+      </button>
+    </main>
+  }
+  @if (showTools) {
+    <aside class="demo-tools" aria-label="Adapter test tools">
+      <h2>Adapter test tools</h2>
+      <dl>
+        <div><dt>Status</dt><dd>{{ rerune.state().status }}</dd></div>
+        <div><dt>Revision</dt><dd>{{ rerune.state().revision }}</dd></div>
+        <div><dt>Main language</dt><dd>{{ rerune.state().mainLanguage || 'Awaiting manifest' }}</dd></div>
+        <div><dt>Updated locales</dt><dd>{{ rerune.state().lastResult?.updatedLocales?.join(', ') || 'None' }}</dd></div>
+      </dl>
+      @if (actionError()) { <p class="demo-tools-error" role="alert">{{ actionError() }}</p> }
+      @for (error of rerune.state().lastResult?.errors || []; track $index) {
+        <p class="demo-tools-error" role="alert">{{ error.type }}: {{ error.message }}</p>
+      }
+      <h3>Plural forms</h3>
+      <div class="demo-tools-counter">
+        <button type="button" aria-label="Decrease count" (click)="changeCount(-1)">−</button>
+        <output>{{ count() }}</output>
+        <button type="button" aria-label="Increase count" (click)="changeCount(1)">+</button>
+      </div>
+      <p data-testid="plural">{{ 'ammount_of_keys' | transloco: { count: count() } }}</p>
+      <h3>Application-owned text</h3>
+      <p>{{ 'demo_bundled_only' | transloco }}</p>
+      <button type="button" (click)="addLate()">Add application translation</button>
+      @if (lateAdded()) { <p data-testid="late">{{ 'demo_late_added' | transloco }}</p> }
+      <details>
+        <summary>Connect your own ReRune project</summary>
+        <label>Publishable OTA ID<input #project [value]="projectId" autocomplete="off"></label>
+        <button type="button" (click)="changeProject(project.value)">Use project &amp; reload</button>
+        <p>Use a public, read-only OTA publish ID. Root translations receive OTA updates; named scopes and child catalogs stay application-owned.</p>
+      </details>
+      <p>Cache check: synchronize once, block OTA requests in DevTools, then reload. This demo does not install an offline app shell.</p>
+    </aside>
+  }
+</div>

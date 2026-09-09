@@ -1,0 +1,14 @@
+node_modules/
+.pnpm-store/
+.artifacts/
+dist/
+.expo/
+.angular/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+.npmrc
+.netrc

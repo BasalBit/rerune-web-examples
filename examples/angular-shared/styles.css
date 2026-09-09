@@ -1,0 +1,39 @@
+/* The default experience uses the React example's stylesheet unchanged. */
+.demo-tools {
+  width: min(calc(100% - 48px), 512px);
+  margin: 0 auto 40px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background: rgba(19, 26, 39, 0.9);
+  color: #b1bac8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.demo-tools h2, .demo-tools h3 { color: #f5f7fb; }
+.demo-tools h2 { margin-top: 0; }
+.demo-tools h3 { margin: 24px 0 12px; }
+.demo-tools dl { display: grid; gap: 8px; }
+.demo-tools dl > div { display: flex; justify-content: space-between; gap: 16px; }
+.demo-tools dd { margin: 0; color: #f5f7fb; overflow-wrap: anywhere; }
+.demo-tools button, .demo-tools input {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 184, 74, 0.3);
+  border-radius: 12px;
+  color: #f5f7fb;
+  background: #171f2e;
+}
+.demo-tools button { cursor: pointer; }
+.demo-tools button:hover { background: #263247; }
+.demo-tools button:focus-visible, .demo-tools input:focus-visible, .demo-tools summary:focus-visible {
+  outline: 2px solid #ffb84a;
+  outline-offset: 3px;
+}
+.demo-tools-counter { display: flex; align-items: center; gap: 16px; }
+.demo-tools-counter output { min-width: 24px; text-align: center; }
+.demo-tools details { margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 20px; }
+.demo-tools summary { cursor: pointer; color: #f5f7fb; }
+.demo-tools label { display: grid; gap: 8px; margin: 16px 0; }
+.demo-tools input { min-width: 0; width: 100%; }
+.demo-tools-error { color: #ffa894; overflow-wrap: anywhere; }

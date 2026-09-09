@@ -1,0 +1,30 @@
+{
+  "name": "angular-ngx-translate-example",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "ng serve --host 127.0.0.1 --port 4201",
+    "build": "ng build",
+    "typecheck": "ngc -p tsconfig.app.json --noEmit"
+  },
+  "dependencies": {
+    "@rerune/angular": "1.2.0",
+    "@angular/common": "18.2.14",
+    "@angular/compiler": "18.2.14",
+    "@angular/core": "18.2.14",
+    "@angular/platform-browser": "18.2.14",
+    "rxjs": "7.8.2",
+    "tslib": "^2.8.1",
+    "zone.js": "0.14.10",
+    "@ngx-translate/core": "18.0.0",
+    "ngx-translate-messageformat-compiler": "7.3.0",
+    "@messageformat/core": "3.4.0"
+  },
+  "devDependencies": {
+    "@angular/cli": "18.2.14",
+    "@angular-devkit/build-angular": "18.2.14",
+    "@angular/compiler-cli": "18.2.14",
+    "typescript": "5.5.4"
+  }
+}

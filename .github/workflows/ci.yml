@@ -1,0 +1,51 @@
+name: Public consumer checks
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    env:
+      CI: 'true'
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_OFFLINE: '1'
+      NG_CLI_ANALYTICS: 'false'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.artifacts/browsers
+      __UNSAFE_EXPO_HOME_DIRECTORY: ${{ github.workspace }}/.artifacts/expo-home
+      TMPDIR: ${{ github.workspace }}/.artifacts/tmp
+    steps:
+      - uses: actions/checkout@v4
+      - run: mkdir -p .artifacts/tmp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.8.1'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pnpm install --frozen-lockfile --store-dir .artifacts/pnpm-store
+      - run: pnpm check:dependencies
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: python -m pip install -r scripts/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: pnpm test:browser
+      - run: pnpm test:parity
+      - run: pnpm export:android
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: |
+            .artifacts/browser
+            .artifacts/angular-browser
+            .artifacts/angular-ui-parity
+            .artifacts/server-*.log
