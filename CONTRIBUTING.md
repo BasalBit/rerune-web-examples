@@ -20,25 +20,19 @@ CI=true EXPO_NO_TELEMETRY=1 pnpm export:android
 
 ## Browser tests
 
-Use Python 3.9 or newer. One local setup is:
+Playwright Test is pinned in the root package manifest and installed by pnpm. Install Chromium once, then build and run:
 
 ```bash
-python3 -m venv .artifacts/venv
-.artifacts/venv/bin/pip install -r scripts/requirements.txt
-PLAYWRIGHT_BROWSERS_PATH=.artifacts/browsers .artifacts/venv/bin/python -m playwright install chromium
-CI=true pnpm build
-```
-
-Activate the environment and run the root commands:
-
-```bash
-. .artifacts/venv/bin/activate
 export PLAYWRIGHT_BROWSERS_PATH="$PWD/.artifacts/browsers"
+pnpm exec playwright install chromium
+CI=true pnpm build
 pnpm test:browser
 pnpm test:parity
 ```
 
-The scripts start and stop production servers on 5173, 4201, and 4202. Those ports must be free. Browser profiles, server logs, and screenshots are generated under `.artifacts/`. Python Playwright is pinned in `scripts/requirements.txt`.
+The TypeScript suites live in `tests/browser/`. Playwright starts and stops Vite preview servers for the production builds on 5173, 4201, and 4202. Those ports must be free. Test output and screenshots go into `.artifacts/browser/` and `.artifacts/angular-ui-parity/`; failed tests also retain traces and screenshots. Temporary browser profiles use `.artifacts/tmp/` unless `TMPDIR` is already configured. Server output appears in the test log.
+
+Use `pnpm exec playwright test --project=browser --grep "ngx"` for a focused run. The root `pnpm typecheck` also checks the tests and runner configuration.
 
 The browser suite uses the installed SDK and native translation engines. Request interception supplies deterministic manifests and locale records. It covers bundled startup, OTA rendering, locale changes, Main/vip persistence, interpolation, cardinal plurals, failed-request cache restoration, partial updates, unchanged content with a failed locale, and success timestamps. Angular-specific checks include native MessageFormat, late application writes, and restoring bundled copy after OTA removal.
 
