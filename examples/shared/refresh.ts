@@ -1,6 +1,6 @@
 export type RefreshPhase = 'idle' | 'checking' | 'success' | 'current' | 'partial' | 'error'
 
-// Only public update-result fields available in SDK 1.2.0 are used here.
+// Classify transport/update outcomes from the public result flags.
 export function classifyCheck(result: { hasErrors: boolean; hasUpdates: boolean }): RefreshPhase {
   if (result.hasErrors) return result.hasUpdates ? 'partial' : 'error'
   return result.hasUpdates ? 'success' : 'current'

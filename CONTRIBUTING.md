@@ -16,7 +16,7 @@ CI=true pnpm build
 CI=true EXPO_NO_TELEMETRY=1 pnpm export:android
 ```
 
-`check:dependencies` verifies the public SDK registry versions and lockfile integrity, rejects local SDK links and source aliases, and checks that app dependencies, imports, and asset paths resolve inside the checkout. It needs access to public npm. The four Node tests protect dependency boundaries and refresh-result classification. Expo's `typecheck` and Android export are separate from native device testing.
+`check:dependencies` verifies the public SDK registry versions and lockfile integrity, rejects local SDK links and source aliases, and checks that app dependencies, imports, and asset paths resolve inside the checkout. It needs access to public npm. The Node tests protect dependency boundaries, refresh-result classification, and the installed SDK's late-resource and cache-write behavior. Expo's `typecheck` and Android export are separate from native device testing.
 
 ## Browser tests
 

@@ -1,6 +1,6 @@
 # React web with i18next
 
-A runnable welcome/story example using [@rerune/react 1.2.0](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
+A runnable welcome/story example using [@rerune/react 1.3.1](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
 
 ## Run
 
@@ -30,7 +30,7 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration location
 
-[src/App.tsx](src/App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. SDK 1.2.0 snapshots managed bundled resources at setup; later writes to managed resources can be lost on reapplication.
+[src/App.tsx](src/App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. ReRune preserves later i18next resource writes beneath OTA overrides. Removing an override restores the latest application value.
 
 ## Manual OTA check
 
@@ -49,7 +49,7 @@ OTA grammar is plain text, declared interpolation, and one cardinal plural. Nati
 
 ## Translation cache
 
-The browser cache has a best-effort memory fallback when localStorage is unavailable or a write fails. That memory is not durable across reloads. In SDK 1.2.0 an older stored value can still win over the fallback on a later read.
+The built-in browser cache retains updates in session memory when localStorage is unavailable or a write fails. Newer session values take precedence over older stored copy. Session memory is lost on reload; a later successful write persists the current value.
 
 ## Screenshot
 

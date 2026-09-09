@@ -1,6 +1,6 @@
 # React Native with Expo
 
-A runnable welcome/story example using [@rerune/react-native 1.2.0](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
+A runnable welcome/story example using [@rerune/react-native 1.3.1](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
 
 ## Run
 
@@ -32,7 +32,7 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration location
 
-[App.tsx](App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. SDK 1.2.0 snapshots managed bundled resources at setup; later writes to managed resources can be lost on reapplication.
+[App.tsx](App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. ReRune preserves later i18next resource writes beneath OTA overrides. Removing an override restores the latest application value.
 
 ## Manual OTA check
 
@@ -51,7 +51,7 @@ OTA grammar is plain text, declared interpolation, and one cardinal plural. Nati
 
 ## Translation cache
 
-Cached OTA copy and bundled resources can provide text offline. SDK 1.2.0 awaits AsyncStorage writes; a write failure can prevent the affected locale from activating. It does not have an in-memory write fallback.
+Cached OTA copy and bundled resources can provide text offline. If an AsyncStorage write fails, the built-in cache retains the update in session memory and allows it to activate. Newer session values take precedence over older stored copy. Session memory is lost on restart; a later successful write persists the current value.
 
 ## Screenshot
 

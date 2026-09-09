@@ -1,6 +1,6 @@
 # ReRune examples
 
-Run ReRune OTA translations in an ordinary React, React Native, or Angular application. Each app consumes the public **1.2.0** npm packages and preserves its translation engine's normal rendering APIs.
+Run ReRune OTA translations in an ordinary React, React Native, or Angular application. Each app consumes the public **1.3.1** npm packages and preserves its translation engine's normal rendering APIs.
 
 ## Choose an app
 
@@ -40,7 +40,7 @@ Refresh results remain visible until the next manual check. Clean changes show *
 - Updates are asynchronous checks while the app runs, not push delivery or OS background work. All manifest languages are considered; a failed language can retain older copy.
 - Variants select among delivered project resources. They are not access controls.
 - OTA supports plain text, declared interpolation, and one cardinal plural. A bundled engine's MessageFormat support does not expand OTA grammar.
-- Version 1.2.0 has platform-specific cache and application-resource limitations. Read the chosen app's guide before adapting it.
+- Built-in caches retain updates in session memory if persistence fails. Read the chosen app's guide for cache behavior.
 
 ## Packages and documentation
 

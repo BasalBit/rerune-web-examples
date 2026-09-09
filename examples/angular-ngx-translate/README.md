@@ -1,6 +1,6 @@
 # Angular with ngx-translate
 
-A runnable welcome/story example using [@rerune/angular 1.2.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable welcome/story example using [@rerune/angular 1.3.1](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -44,7 +44,7 @@ OTA grammar is plain text, declared interpolation, and one cardinal plural. Nati
 
 ## Translation cache
 
-The browser cache has a best-effort memory fallback when localStorage is unavailable or a write fails. That memory is not durable across reloads. In SDK 1.2.0 an older stored value can still win over the fallback on a later read.
+The built-in browser cache retains updates in session memory when localStorage is unavailable or a write fails. Newer session values take precedence over older stored copy. Session memory is lost on reload; a later successful write persists the current value.
 
 ## Screenshot
 
