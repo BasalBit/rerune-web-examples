@@ -4,15 +4,17 @@ import {
   ActivityIndicator,
   BackHandler,
   Image,
+  Platform,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native'
+import { initialWindowMetrics, SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import * as NavigationBar from 'expo-navigation-bar'
 import { useTranslation } from 'react-i18next'
 import type { ReRuneI18nextClient } from '@rerune/react-native'
 
@@ -25,6 +27,8 @@ import {
 import blacksmithImage from './assets/blacksmith.png'
 import writerOrbImage from './assets/writer-orb.png'
 import { startup } from './src/i18n'
+import { LanguageSelector } from './src/LanguageSelector'
+import { COLORS } from './src/theme'
 
 const configuredTestVariant = process.env.EXPO_PUBLIC_RERUNE_VARIANT?.trim()
 const TEST_VARIANT =
@@ -34,17 +38,6 @@ const TEST_VARIANT =
 const PUBLISH_DATE = '31.08.2026'
 
 type DemoScreen = 'welcome' | 'story'
-
-const COLORS = {
-  background: '#0B0F17',
-  backgroundSecondary: '#121826',
-  text: '#F5F7FB',
-  textSecondary: '#98A2B3',
-  accent: '#F5A623',
-  accentStrong: '#FFB52E',
-  success: '#3DDC97',
-  border: 'rgba(255, 255, 255, 0.08)',
-} as const
 
 function formatTimestamp(date: Date): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -137,14 +130,6 @@ function DemoExperience() {
     }
   }, [checkForUpdates])
 
-  const cycleLocale = () => {
-    const currentIndex = availableLocales.indexOf(activeLocale)
-    const nextLocale = availableLocales[(currentIndex + 1) % availableLocales.length]
-    if (nextLocale) {
-      void activeI18n.changeLanguage(nextLocale)
-    }
-  }
-
   const toggleVariant = () => {
     void activeClient.setVariant({
       variant: isTestVariantActive ? ReRune.Main : TEST_VARIANT,
@@ -166,168 +151,160 @@ function DemoExperience() {
 
   if (screen === 'story') {
     return (
-      <DemoBackground>
-        <SafeAreaView style={styles.safeArea}>
-          <ScrollView
-            contentContainerStyle={styles.storyContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <Pressable
-              accessibilityLabel="Back"
-              accessibilityRole="button"
-              hitSlop={12}
-              onPress={() => setScreen('welcome')}
-              style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
-            >
-              <Text style={styles.backArrow}>←</Text>
-            </Pressable>
+      <ScrollView
+        contentInsetAdjustmentBehavior="never"
+        contentContainerStyle={styles.storyContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Pressable
+          accessibilityLabel="Back"
+          accessibilityRole="button"
+          hitSlop={12}
+          onPress={() => setScreen('welcome')}
+          style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
+        >
+          <Text style={styles.backArrow}>←</Text>
+        </Pressable>
 
-            <Image source={blacksmithImage} style={styles.storyImage} />
-            <Badge>{t('story_caption')}</Badge>
-            <Text style={styles.storyTitle}>{t('story_title')}</Text>
-            <Text style={styles.bodyCopy}>{t('story_body_primary')}</Text>
-            <Text style={styles.bodyCopy}>{t('story_body_secondary')}</Text>
+        <Image source={blacksmithImage} style={styles.storyImage} />
+        <Badge>{t('story_caption')}</Badge>
+        <Text style={styles.storyTitle}>{t('story_title')}</Text>
+        <Text style={styles.bodyCopy}>{t('story_body_primary')}</Text>
+        <Text style={styles.bodyCopy}>{t('story_body_secondary')}</Text>
 
-            <View style={styles.storyExamples}>
-              <Text style={styles.bodyCopy}>{t('ammount_of_keys', { count: 1 })}</Text>
-              <Text style={styles.bodyCopy}>{t('ammount_of_keys', { count: 4 })}</Text>
-            </View>
+        <View style={styles.storyExamples}>
+          <Text style={styles.bodyCopy}>{t('ammount_of_keys', { count: 1 })}</Text>
+          <Text style={styles.bodyCopy}>{t('ammount_of_keys', { count: 4 })}</Text>
+        </View>
 
-            <PrimaryButton
-              disabled={isRefreshing}
-              loading={isRefreshing}
-              onPress={() => void refresh()}
-            >
-              {refreshPhase === 'idle' ? t('story_refresh_cta') : refreshText(refreshPhase, activeLocale, updatedLocales)}
-            </PrimaryButton>
-          </ScrollView>
-        </SafeAreaView>
-      </DemoBackground>
+        <PrimaryButton
+          disabled={isRefreshing}
+          loading={isRefreshing}
+          onPress={() => void refresh()}
+        >
+          {refreshPhase === 'idle' ? t('story_refresh_cta') : refreshText(refreshPhase, activeLocale, updatedLocales)}
+        </PrimaryButton>
+      </ScrollView>
     )
   }
 
   return (
-    <DemoBackground>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          contentContainerStyle={styles.welcomeContent}
-          refreshControl={
-            <RefreshControl
-              colors={[COLORS.accent]}
-              onRefresh={() => void refresh()}
-              progressBackgroundColor={COLORS.backgroundSecondary}
-              refreshing={isRefreshing}
-              tintColor={COLORS.accent}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.welcomeCopy}>
-            <Badge>{t('welcome_badge')}</Badge>
-            <Text style={styles.welcomeTitle}>{t('welcome_title')}</Text>
-            <Text style={styles.bodyCopy}>{t('welcome_subtitle')}</Text>
-          </View>
+    <ScrollView
+      contentInsetAdjustmentBehavior="never"
+      contentContainerStyle={styles.welcomeContent}
+      refreshControl={
+        <RefreshControl
+          colors={[COLORS.accent]}
+          onRefresh={() => void refresh()}
+          progressBackgroundColor={COLORS.backgroundSecondary}
+          refreshing={isRefreshing}
+          tintColor={COLORS.accent}
+        />
+      }
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.welcomeCopy}>
+        <Badge>{t('welcome_badge')}</Badge>
+        <Text style={styles.welcomeTitle}>{t('welcome_title')}</Text>
+        <Text style={styles.bodyCopy}>{t('welcome_subtitle')}</Text>
+      </View>
 
-          <View style={styles.welcomeImageShell}>
-            <Image source={writerOrbImage} style={styles.welcomeImage} />
-            <View style={styles.welcomePublishDateOverlay}>
-              <Text style={styles.welcomePublishDateText}>
-                {t('publish_date', { publish_date: PUBLISH_DATE })}
-              </Text>
-            </View>
-          </View>
+      <View style={styles.welcomeImageShell}>
+        <Image source={writerOrbImage} style={styles.welcomeImage} />
+        <View style={styles.welcomePublishDateOverlay}>
+          <Text style={styles.welcomePublishDateText}>
+            {t('publish_date', { publish_date: PUBLISH_DATE })}
+          </Text>
+        </View>
+      </View>
 
-          <View accessibilityLabel="Localization status" style={styles.statusCard}>
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>{t('welcome_locale_label')}</Text>
-              <Pressable
-                accessibilityHint="Cycles through available locales"
-                accessibilityRole="button"
-                onPress={cycleLocale}
-              >
-                <Text numberOfLines={1} style={styles.localeValue}>
-                  {activeLocale}
-                </Text>
-              </Pressable>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>{t('welcome_variant_label')}</Text>
-              <Pressable
-                accessibilityLabel={t('welcome_variant_label')}
-                accessibilityRole="switch"
-                accessibilityState={{ checked: isTestVariantActive }}
-                accessibilityValue={{ text: state.variant }}
-                onPress={toggleVariant}
-                style={({ pressed }) => [
-                  styles.variantSwitch,
-                  pressed ? styles.variantSwitchPressed : null,
-                ]}
-              >
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.variantSwitchValue,
-                    isTestVariantActive ? styles.variantSwitchValueActive : null,
-                  ]}
-                >
-                  {state.variant}
-                </Text>
-                <View
-                  style={[
-                    styles.variantSwitchTrack,
-                    isTestVariantActive ? styles.variantSwitchTrackActive : null,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.variantSwitchThumb,
-                      isTestVariantActive ? styles.variantSwitchThumbActive : null,
-                    ]}
-                  />
-                </View>
-              </Pressable>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { flex: 1, flexShrink: 1 }]}>{checkLabels(activeLocale).last}</Text>
-              <Text style={[styles.statusValue, { flex: 1 }]}>
-                {lastSynced ?? checkLabels(activeLocale).empty}
-              </Text>
-            </View>
-          </View>
-
+      <View accessibilityLabel="Localization status" style={styles.statusCard}>
+        <LanguageSelector
+          label={t('welcome_locale_label')}
+          activeLocale={activeLocale}
+          availableLocales={availableLocales}
+          onSelect={locale => { void activeI18n.changeLanguage(locale) }}
+        />
+        <View style={styles.statusDivider} />
+        <View style={styles.statusRow}>
+          <Text style={styles.statusLabel}>{t('welcome_variant_label')}</Text>
           <Pressable
-            accessibilityRole="button"
-            disabled={isRefreshing}
-            onPress={() => void refresh()}
-            style={styles.refreshState}
+            accessibilityLabel={t('welcome_variant_label')}
+            accessibilityRole="switch"
+            accessibilityState={{ checked: isTestVariantActive }}
+            accessibilityValue={{ text: state.variant }}
+            onPress={toggleVariant}
+            style={({ pressed }) => [
+              styles.variantSwitch,
+              pressed ? styles.variantSwitchPressed : null,
+            ]}
           >
-            {isRefreshing ? (
-              <ActivityIndicator color={COLORS.textSecondary} size="small" />
-            ) : null}
             <Text
+              numberOfLines={1}
               style={[
-                styles.refreshStateText,
-                refreshPhase === 'success' ? styles.refreshSuccess : null,
+                styles.variantSwitchValue,
+                isTestVariantActive ? styles.variantSwitchValueActive : null,
               ]}
             >
-              {refreshText(refreshPhase, activeLocale, updatedLocales)}
+              {state.variant}
             </Text>
+            <View
+              style={[
+                styles.variantSwitchTrack,
+                isTestVariantActive ? styles.variantSwitchTrackActive : null,
+              ]}
+            >
+              <View
+                style={[
+                  styles.variantSwitchThumb,
+                  isTestVariantActive ? styles.variantSwitchThumbActive : null,
+                ]}
+              />
+            </View>
           </Pressable>
+        </View>
+        <View style={styles.statusDivider} />
+        <View style={styles.statusRow}>
+          <Text style={[styles.statusLabel, { flex: 1, flexShrink: 1 }]}>{checkLabels(activeLocale).last}</Text>
+          <Text style={[styles.statusValue, { flex: 1 }]}>
+            {lastSynced ?? checkLabels(activeLocale).empty}
+          </Text>
+        </View>
+      </View>
 
-          <PrimaryButton onPress={() => setScreen('story')}>
-            {t('welcome_open_story_cta')}
-          </PrimaryButton>
-        </ScrollView>
-      </SafeAreaView>
-    </DemoBackground>
+      <Pressable
+        accessibilityRole="button"
+        disabled={isRefreshing}
+        onPress={() => void refresh()}
+        style={styles.refreshState}
+      >
+        {isRefreshing ? (
+          <ActivityIndicator color={COLORS.textSecondary} size="small" />
+        ) : null}
+        <Text
+          style={[
+            styles.refreshStateText,
+            refreshPhase === 'success' ? styles.refreshSuccess : null,
+          ]}
+        >
+          {refreshText(refreshPhase, activeLocale, updatedLocales)}
+        </Text>
+      </Pressable>
+
+      <PrimaryButton onPress={() => setScreen('story')}>
+        {t('welcome_open_story_cta')}
+      </PrimaryButton>
+    </ScrollView>
   )
 }
 
 export default function App() {
   const [client, setClient] = useState<ReRuneI18nextClient | null>(null)
   const [startupError, setStartupError] = useState<Error | null>(null)
+  useEffect(() => {
+    if (Platform.OS === 'android') NavigationBar.setStyle('dark')
+  }, [])
+
   useEffect(() => {
     let mounted = true
     void startup.then(result => {
@@ -338,16 +315,27 @@ export default function App() {
     return () => { mounted = false }
   }, [])
 
-  if (startupError) return <Text accessibilityRole="alert">Could not initialize translations.</Text>
-  if (!client) return <ActivityIndicator accessibilityLabel="Loading translations" />
-
   return (
-    <>
-      <StatusBar backgroundColor={COLORS.backgroundSecondary} barStyle="light-content" />
-      <ReRuneProvider client={client}>
-        <DemoExperience />
-      </ReRuneProvider>
-    </>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <StatusBar barStyle="light-content" />
+      <DemoBackground>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'bottom', 'left']}>
+          {startupError ? (
+            <View style={styles.startupContent}>
+              <Text accessibilityRole="alert" style={styles.bodyCopy}>Could not initialize translations.</Text>
+            </View>
+          ) : client ? (
+            <ReRuneProvider client={client}>
+              <DemoExperience />
+            </ReRuneProvider>
+          ) : (
+            <View style={styles.startupContent}>
+              <ActivityIndicator accessibilityLabel="Loading translations" color={COLORS.accent} />
+            </View>
+          )}
+        </SafeAreaView>
+      </DemoBackground>
+    </SafeAreaProvider>
   )
 }
 
@@ -377,6 +365,12 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  startupContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
   },
   welcomeContent: {
     flexGrow: 1,
@@ -476,13 +470,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     color: COLORS.textSecondary,
     fontSize: 15,
-  },
-  localeValue: {
-    maxWidth: 210,
-    color: COLORS.accent,
-    fontSize: 15,
-    fontWeight: '700',
-    textAlign: 'right',
   },
   variantSwitch: {
     minWidth: 0,
@@ -597,6 +584,8 @@ const styles = StyleSheet.create({
   },
   storyImage: {
     width: '100%',
+    // Override the bundled image's intrinsic height so aspectRatio controls its size.
+    height: undefined,
     aspectRatio: 1,
     borderRadius: 28,
     resizeMode: 'cover',

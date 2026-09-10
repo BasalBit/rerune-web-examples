@@ -3,6 +3,16 @@
     "name": "ReRune Expo Example",
     "slug": "rerune-expo-example",
     "version": "1.0.0",
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "barStyle": "light-content",
+      "enforceContrast": false
+    }
   }
 }

@@ -11,9 +11,11 @@
   "dependencies": {
     "@rerune/react-native": "1.4.0",
     "expo": "54.0.37",
+    "expo-navigation-bar": "~5.0.10",
     "i18next": "^25.0.0",
     "react": "19.1.0",
     "react-i18next": "^15.0.0",
-    "react-native": "0.81.5"
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0"
   }
 }
