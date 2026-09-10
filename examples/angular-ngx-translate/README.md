@@ -1,6 +1,6 @@
 # Angular with ngx-translate
 
-A runnable welcome/story example using [@rerune/angular 1.4.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable welcome/story example using [@rerune/angular 1.5.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -25,25 +25,75 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-[src/main.ts](src/main.ts) composes the native root engine through `ReRune.provide(otaOptions, nativeOptions)` from `@rerune/angular/ngx-translate`:
+The checkout already installs `@rerune/angular@1.5.0`. In an existing native app, install `@rerune/angular@1.5.0` with your package manager and retain its native engine dependencies.
+
+SDK 1.5.0 keeps the same combined Angular provider API. Adoption replaces one native root provider in [src/main.ts](src/main.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
+
+Both alternatives keep the existing `App`, `DemoLoader`, `messages`, and publishable `publishId` from this app. Keep the loader in place; it returns bundled messages using `of(messages[lang] ?? {}).pipe(delay(200))`. Do not move translations or add another bootstrap helper.
+
+### Before ReRune
 
 ```ts
-ReRune.provide({
-  otaPublishId: publishId,
-  supportedLocales: ['en', 'de'],
-  logLevel: 'off',
-}, {
-  lang: 'en', fallbackLang: 'en',
-  loader: { provide: TranslateLoader, useClass: DemoLoader },
-  compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
-})
+import { bootstrapApplication } from '@angular/platform-browser'
+import { provideTranslateService, TranslateLoader, TranslateCompiler } from '@ngx-translate/core'
+import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler'
+
+bootstrapApplication(App, {
+  providers: [
+    provideTranslateService({
+      lang: 'en', fallbackLang: 'en',
+      loader: { provide: TranslateLoader, useClass: DemoLoader },
+      compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
+    }),
+  ],
+}).catch(error => console.error(error))
 ```
 
-The explicit locale hint includes German before the lazy loader registers it with ngx-translate. Native loader and MessageFormat compiler options stay in the second argument. [src/app.html](src/app.html) keeps the engine's native translation pipes. OTA covers the root/default catalog only; feature scopes, child catalogs, and Angular localize are outside its support.
+### After ReRune
 
-### Upgrading from 1.3.x
+```ts
+import { bootstrapApplication } from '@angular/platform-browser'
+import { TranslateLoader, TranslateCompiler } from '@ngx-translate/core'
+import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler'
+import { ReRune } from '@rerune/angular/ngx-translate'
 
-Replace the separate `provideTranslateService(nativeOptions)` and ReRune registrations with the two-argument call above. Keep separate plugin providers in their native order. If your root engine is already registered elsewhere, omit the second argument to attach ReRune to it.
+bootstrapApplication(App, {
+  providers: [
+    ReRune.provide({
+      otaPublishId: publishId,
+      supportedLocales: ['en', 'de'],
+      logLevel: 'off',
+      updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
+    }, {
+      lang: 'en', fallbackLang: 'en',
+      loader: { provide: TranslateLoader, useClass: DemoLoader },
+      compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
+    }),
+  ],
+}).catch(error => console.error(error))
+```
+
+Replace the native provider import and call with `ReRune.provide(...)`. Register exactly one combined provider at the root; do not retain a separate `provideTranslateService(...)` registration. Its native configuration moves unchanged into the second argument, including loader, fallback, and compiler/plugin behavior. Preserve other root providers and startup error handling.
+
+The `supportedLocales` hint includes German before the lazy root loader registers it with ngx-translate. It preserves recognition of app-owned languages; it does not replace native language settings. Keep the MessageFormat compiler in the native options.
+
+### Native translation calls
+
+[src/app.html](src/app.html) keeps the native `translate` pipe. Language switching still calls `TranslateService.use(locale)`. Keep native service calls, interpolation, and MessageFormat. OTA covers the root/default catalog only; feature scopes, child catalogs, and Angular localize are outside its support.
+
+### Removing ReRune
+
+Restore the **Before ReRune** provider with the same native options, loader, compiler, and plugin order. Remove ReRune-only refresh, status, and variant controls plus their imports and `ReRuneService` injection. Then run from the repository root:
+
+```bash
+pnpm --dir examples/angular-ngx-translate remove @rerune/angular
+```
+
+Keep `@ngx-translate/core` and its MessageFormat dependencies, pipes, and native calls. Ensure bundles or native loaders contain the messages required without OTA; ReRune does not cache native HTTP-loader responses. OTA delivery, ReRune cache restoration, and variant selection stop. Removal is a source change followed by an app restart, not live rollback through disposal.
+
+### Advanced: an existing root provider
+
+If the native root engine is already registered elsewhere, attach ReRune by omitting its second argument. Preserve that existing native registration and plugin ordering. Use this only for an app-owned root provider; the primary setup above already registers the engine.
 
 ## Manual OTA check
 

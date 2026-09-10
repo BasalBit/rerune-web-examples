@@ -1,6 +1,6 @@
 # ReRune examples
 
-Run ReRune OTA translations in an ordinary React, React Native, or Angular application. Each app consumes the public **1.4.0** npm packages and preserves its translation engine's normal rendering APIs.
+Run ReRune OTA translations in an ordinary React, React Native, or Angular application. Each app consumes the public **1.5.0** npm packages and preserves its translation engine's normal rendering APIs.
 
 ## Choose an app
 
@@ -26,11 +26,11 @@ Open [localhost:5173](http://127.0.0.1:5173). Choose another command from the ta
 
 The apps use a public demonstration project by default. Each guide explains how to supply your own publishable read ID. Never use an administration credential. Console logging defaults to `off`.
 
-## Integration in 1.4.0
+## Integration in 1.5.0
 
 React and React Native await `ReRune.setup(otaOptions, i18nOptions)` and render one `ReRuneProvider`. Native resources and language configuration stay in i18next. Angular uses `ReRune.provide(otaOptions, nativeOptions)` to compose its root engine provider, preserving native loaders and plugins.
 
-Version 1.4.0 changes setup from 1.3.x. Each app guide includes its integration and migration steps.
+In 1.5.0, React and React Native can create an isolated i18next instance from the supplied native options. Apps with plugins can still pass their own instance. Angular keeps its existing combined provider API. Each app guide compares **Before ReRune**, **After ReRune**, and **Removing ReRune**, using the same native configuration and translation calls.
 
 ## What to try
 

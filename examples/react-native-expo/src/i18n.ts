@@ -1,9 +1,7 @@
 import { ReRune, createReRuneAsyncStorageCacheStore } from '@rerune/react-native'
-import i18next, { type InitOptions } from 'i18next'
+import type { InitOptions } from 'i18next'
 
 import { resourcesByLocale } from './messages'
-
-export const i18n = i18next.createInstance()
 
 export const i18nOptions = {
   initImmediate: false,
@@ -27,7 +25,6 @@ const otaPublishId =
 
 const reruneCacheStore = createReRuneAsyncStorageCacheStore({ prefix: 'rerune-rn-example' })
 const clientReady = ReRune.setup({
-  i18n,
   otaPublishId,
   logLevel: 'off',
   cacheStore: reruneCacheStore,

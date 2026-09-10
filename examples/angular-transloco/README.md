@@ -1,6 +1,6 @@
 # Angular with Transloco
 
-A runnable welcome/story example using [@rerune/angular 1.4.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable welcome/story example using [@rerune/angular 1.5.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -25,23 +25,73 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-[src/main.ts](src/main.ts) composes the native root engine through `ReRune.provide(otaOptions, nativeOptions)` from `@rerune/angular/transloco`:
+The checkout already installs `@rerune/angular@1.5.0`. In an existing native app, install `@rerune/angular@1.5.0` with your package manager and retain its native engine dependencies.
+
+SDK 1.5.0 keeps the same combined Angular provider API. Adoption replaces one native root provider in [src/main.ts](src/main.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
+
+Both alternatives keep the existing `App`, `DemoLoader`, `messages`, and publishable `publishId` from this app. Keep the loader in place; it returns bundled messages using `of(messages[lang] ?? {}).pipe(delay(200))`. Do not move translations or add another bootstrap helper.
+
+### Before ReRune
 
 ```ts
-ReRune.provide({
-  otaPublishId: publishId,
-  logLevel: 'off',
-}, {
-  config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
-  loader: DemoLoader,
-})
+import { bootstrapApplication } from '@angular/platform-browser'
+import { provideTransloco } from '@jsverse/transloco'
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat'
+
+bootstrapApplication(App, {
+  providers: [
+    provideTransloco({
+      config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
+      loader: DemoLoader,
+    }),
+    provideTranslocoMessageformat(),
+  ],
+}).catch(error => console.error(error))
 ```
 
-ReRune derives configured languages from Transloco. Keep `provideTranslocoMessageformat()` after the composed provider so the native MessageFormat plugin remains registered. [src/app.html](src/app.html) keeps the engine's native translation pipes. OTA covers the root/default catalog only; feature scopes, child catalogs, and Angular localize are outside its support.
+### After ReRune
 
-### Upgrading from 1.3.x
+```ts
+import { bootstrapApplication } from '@angular/platform-browser'
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat'
+import { ReRune } from '@rerune/angular/transloco'
 
-Replace the separate `provideTransloco(nativeOptions)` and ReRune registrations with the two-argument call above. Keep separate plugin providers in their native order. If your root engine is already registered elsewhere, omit the second argument to attach ReRune to it.
+bootstrapApplication(App, {
+  providers: [
+    ReRune.provide({
+      otaPublishId: publishId,
+      logLevel: 'off',
+      updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
+    }, {
+      config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
+      loader: DemoLoader,
+    }),
+    provideTranslocoMessageformat(),
+  ],
+}).catch(error => console.error(error))
+```
+
+Replace the native provider import and call with `ReRune.provide(...)`. Register exactly one combined provider at the root; do not retain a separate `provideTransloco(...)` registration. Its native configuration moves unchanged into the second argument, including loader, fallback, and compiler/plugin behavior. Preserve other root providers and startup error handling.
+
+Transloco exposes languages through its native `availableLangs`; no extra ReRune locale list is needed. Keep `provideTranslocoMessageformat()` after the combined provider, in the same order as before adoption.
+
+### Native translation calls
+
+[src/app.html](src/app.html) keeps the native `transloco` pipe. Language switching still calls `TranslocoService.setActiveLang(locale)`. Keep native service calls, interpolation, and MessageFormat. OTA covers the root/default catalog only; feature scopes, child catalogs, and Angular localize are outside its support.
+
+### Removing ReRune
+
+Restore the **Before ReRune** provider with the same native options, loader, compiler, and plugin order. Remove ReRune-only refresh, status, and variant controls plus their imports and `ReRuneService` injection. Then run from the repository root:
+
+```bash
+pnpm --dir examples/angular-transloco remove @rerune/angular
+```
+
+Keep `@jsverse/transloco` and its MessageFormat dependencies, pipes, and native calls. Ensure bundles or native loaders contain the messages required without OTA; ReRune does not cache native HTTP-loader responses. OTA delivery, ReRune cache restoration, and variant selection stop. Removal is a source change followed by an app restart, not live rollback through disposal.
+
+### Advanced: an existing root provider
+
+If the native root engine is already registered elsewhere, attach ReRune by omitting its second argument. Preserve that existing native registration and plugin ordering. Use this only for an app-owned root provider; the primary setup above already registers the engine.
 
 ## Manual OTA check
 

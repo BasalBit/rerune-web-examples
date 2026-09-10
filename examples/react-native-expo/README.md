@@ -1,6 +1,6 @@
 # React Native with Expo
 
-A runnable welcome/story example using [@rerune/react-native 1.4.0](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
+A runnable welcome/story example using [@rerune/react-native 1.5.0](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
 
 ## Run
 
@@ -19,7 +19,7 @@ Tap the current locale to open the language dropdown, then choose a language. Th
 
 The background fills the screen edge-to-edge. `react-native-safe-area-context` keeps welcome, story, loading, and error content clear of status bars, display cutouts, Android navigation bars, and the iOS home indicator, including in landscape. Status-bar icons are light; `expo-navigation-bar` and the Android app configuration keep three-button navigation legible on the dark background. See Expo's [safe-area guide](https://docs.expo.dev/versions/v54.0.0/sdk/safe-area-context/) and [navigation-bar API](https://docs.expo.dev/versions/v54.0.0/sdk/navigation-bar/).
 
-After installing these dependencies, restart Metro. Rebuild an existing development client to include the native modules and Android configuration changes; restarting JavaScript alone does not apply native build settings.
+Restart Metro after updating dependencies. The SDK 1.5.0 JavaScript setup change alone does not require a new native binary. If an existing development client lacks AsyncStorage, safe-area or navigation-bar modules, or the Android settings above, rebuild it to include them; restarting JavaScript does not apply native build settings.
 
 For a device check, open both screens in portrait and landscape on Android with gesture and three-button navigation, and on an iPhone with a notch or Dynamic Island. Confirm the top controls and final refresh/story button remain clear of system UI. Open the dropdown, select a locale directly, reopen it to check the selected mark, and dismiss it without changing the language.
 
@@ -38,24 +38,110 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-[src/i18n.ts](src/i18n.ts) owns the i18next instance, its native options, and the single ReRune setup promise:
+The checkout already installs `@rerune/react-native@1.5.0`. In an existing native app, install `@rerune/react-native@1.5.0` with your package manager and retain its native engine dependencies.
+
+SDK 1.5.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react-native#readme); **Before ReRune** uses native i18next without the SDK.
+
+### Native options
+
+Keep the options in [src/i18n.ts](src/i18n.ts). The same configuration works in both alternatives; no extra configuration file is needed:
 
 ```ts
-const client = await ReRune.setup({ i18n, otaPublishId }, i18nOptions)
+import type { InitOptions } from 'i18next'
+import { resourcesByLocale } from './messages'
+
+const i18nOptions = {
+  initImmediate: false,
+  lng: 'en',
+  fallbackLng: 'en',
+  defaultNS: 'translation',
+  ns: ['translation'],
+  resources: resourcesByLocale,
+  interpolation: { escapeValue: false },
+  react: { useSuspense: false },
+} satisfies InitOptions
 ```
 
-Native `resources`, `lng`, `fallbackLng`, and interpolation settings stay in `i18nOptions`. Keep any i18next `.use(...)` plugins on the same instance. ReRune derives localization configuration from that instance.
+Place imports at module scope and awaited initialization in the existing startup flow. `otaPublishId` below is the existing publishable ID from the configuration above. `Welcome` is the native translation component shown below; keep your application's existing screens and mount timing.
 
-[App.tsx](App.tsx) waits for the shared setup promise, shows a loading indicator until native initialization finishes, and then mounts `ReRuneProvider`. This provider supplies both ReRune and native i18next context. Translation consumers keep `useTranslation()`. Setup waits for native initialization; cached OTA restoration and update checks continue asynchronously.
+### Before ReRune
 
-OTA targets the `translation` namespace. ReRune preserves later i18next resource writes beneath OTA overrides. Removing an override restores the latest application value.
+Initialize the native engine:
 
-### Upgrading from 1.3.x
+```ts
+import i18next from 'i18next'
+import { initReactI18next } from 'react-i18next'
 
-- Await `ReRune.setup(...)` and pass its resolved `ReRuneI18nextClient` to the provider.
-- Replace the separate `i18n.init(nativeOptions)` call by passing those options as setup's second argument. For an already initialized instance, omit that argument.
-- Remove `bundledResources`, `defaultLocale`, and `supportedLocales` from React/RN setup. Keep resources and language settings in native i18next configuration.
-- Replace `I18nextProvider` with `ReRuneProvider`; preserve `defaultNS` on the provider if your app sets it.
+const i18n = i18next.createInstance().use(initReactI18next)
+await i18n.init(i18nOptions)
+```
+
+Once initialization completes, use the native provider:
+
+```tsx
+import { I18nextProvider } from 'react-i18next'
+
+<I18nextProvider i18n={i18n} defaultNS="translation">
+  <Welcome />
+</I18nextProvider>
+```
+
+### After ReRune
+
+Replace initialization with the single shared setup promise:
+
+```ts
+import { ReRune, createReRuneAsyncStorageCacheStore } from '@rerune/react-native'
+
+const client = await ReRune.setup({
+  otaPublishId,
+  logLevel: 'off',
+  cacheStore: createReRuneAsyncStorageCacheStore({ prefix: 'rerune-rn-example' }),
+  updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
+}, i18nOptions)
+```
+
+Replace the root translation provider:
+
+```tsx
+import { ReRuneProvider } from '@rerune/react-native'
+
+<ReRuneProvider client={client} defaultNS="translation">
+  <Welcome />
+</ReRuneProvider>
+```
+
+[App.tsx](App.tsx) keeps its loading and error states, consumes the handled `startup` result, and mounts the provider only after native initialization. `ReRuneProvider` includes `I18nextProvider`; register only the replacement and preserve any existing `defaultNS`. Setup waits for native initialization. Cache restoration and OTA delivery continue asynchronously. Keep the client stable across renders and handle setup rejection.
+
+### Native translation calls
+
+The same component works before and after adoption:
+
+```tsx
+import { Text } from 'react-native'
+import { useTranslation } from 'react-i18next'
+
+function Welcome() {
+  const { t } = useTranslation()
+  return <Text>{t('welcome_title')}</Text>
+}
+```
+
+Language switching still uses `i18n.changeLanguage(locale)` on the instance from `useTranslation()`. Non-component consumers obtain that same instance from `client.i18n` after setup resolves. There is no separate global singleton. OTA targets the `translation` namespace; later native resource writes remain beneath OTA overrides, and removing an override restores the latest application value.
+
+### Removing ReRune
+
+Restore both **Before ReRune** blocks with the same options and resource files. Replace any non-component `client.i18n` use with the restored native instance. Remove ReRune-only refresh, status, and variant controls and their imports, then run from the repository root:
+
+```bash
+pnpm --dir examples/react-native-expo remove @rerune/react-native
+```
+
+Keep `i18next`, `react-i18next`, and the native translation calls. Ensure bundled messages or native loaders cover every required language. OTA delivery, ReRune cache restoration, and variant selection stop. Removal is a source change followed by an app restart; unmounting or disposing a client is not a live rollback.
+
+### Advanced: existing instances and plugins
+
+If your app owns `.use(...)` plugins or depends on a global instance, keep that instance and pass `i18n` in the first setup argument. Keep the same native options as the second argument. For an already initialized instance, await its native initialization first and omit setup's second argument. This example has no such consumers and lets ReRune create the instance.
 
 ## Manual OTA check
 

@@ -1,9 +1,7 @@
 import { ReRune, createReRuneBrowserCacheStore } from '@rerune/react'
-import i18next, { type InitOptions } from 'i18next'
+import type { InitOptions } from 'i18next'
 
 import { resourcesByLocale } from './messages'
-
-export const i18n = i18next.createInstance()
 
 export const i18nOptions = {
   initImmediate: false,
@@ -26,7 +24,6 @@ const otaPublishId =
   import.meta.env.VITE_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
 
 export const clientReady = ReRune.setup({
-  i18n,
   otaPublishId,
   logLevel: 'off',
   cacheStore: createReRuneBrowserCacheStore({ prefix: 'rerune-web-example' }),
