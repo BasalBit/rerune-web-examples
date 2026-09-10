@@ -1,38 +1,19 @@
 import { classifyCheck, checkLabels, refreshText, type RefreshPhase } from '../../shared/refresh'
 import { useCallback, useRef, useState } from 'react'
-import { I18nextProvider, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 
-import { createReRuneBrowserCacheStore, ReRune, ReRuneProvider, useReRune } from '@rerune/react'
+import { ReRune, ReRuneProvider, useReRune, type ReRuneI18nextClient } from '@rerune/react'
 
 import blacksmithUrl from './assets/blacksmith.png'
 import writerOrbUrl from './assets/writer-orb.png'
-import { i18n } from './i18n'
-import { resourcesByLocale } from './messages'
 import './app.css'
 
-const DEFAULT_OTA_PUBLISH_ID =
-  'a5def444424a9dd99de9ec31ef1460e903e42db534b44ea66678c15ec9ddf1f4'
-const otaPublishId =
-  import.meta.env.VITE_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
 const configuredTestVariant = import.meta.env.VITE_RERUNE_VARIANT?.trim()
 const TEST_VARIANT =
   configuredTestVariant && configuredTestVariant !== ReRune.Main
     ? configuredTestVariant
     : 'vip'
 const PUBLISH_DATE = '31.08.2026'
-
-const client = ReRune.setup({
-  i18n,
-  otaPublishId,
-  defaultLocale: 'en',
-  logLevel: 'off',
-  bundledResources: resourcesByLocale,
-  cacheStore: createReRuneBrowserCacheStore({ prefix: 'rerune-web-example' }),
-  updatePolicy: {
-    checkOnStart: true,
-    periodicIntervalInHours: 24,
-  },
-})
 
 type DemoScreen = 'welcome' | 'story'
 
@@ -242,12 +223,10 @@ function DemoExperience() {
   )
 }
 
-export function App() {
+export function App({ client }: { client: ReRuneI18nextClient }) {
   return (
-    <I18nextProvider i18n={i18n}>
-      <ReRuneProvider client={client}>
-        <DemoExperience />
-      </ReRuneProvider>
-    </I18nextProvider>
+    <ReRuneProvider client={client}>
+      <DemoExperience />
+    </ReRuneProvider>
   )
 }

@@ -1,6 +1,6 @@
 # Angular with Transloco
 
-A runnable welcome/story example using [@rerune/angular 1.3.1](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable welcome/story example using [@rerune/angular 1.4.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -23,9 +23,25 @@ The public demo ID is the default. Use [the project field](http://127.0.0.1:4202
 
 Console logging is `off`. A publishable read ID is sufficient; no administration credential is used.
 
-## Integration location
+## Integration
 
-[src/main.ts](src/main.ts) configures the native engine and registers one `ReRune.provide(...)` from `@rerune/angular/transloco`. [src/app.html](src/app.html) retains native pipes, and the bundled loader retains the engine's MessageFormat integration. OTA covers the root/default catalog only. Feature scopes, child catalogs, and Angular localize are outside this example's OTA support.
+[src/main.ts](src/main.ts) composes the native root engine through `ReRune.provide(otaOptions, nativeOptions)` from `@rerune/angular/transloco`:
+
+```ts
+ReRune.provide({
+  otaPublishId: publishId,
+  logLevel: 'off',
+}, {
+  config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
+  loader: DemoLoader,
+})
+```
+
+ReRune derives configured languages from Transloco. Keep `provideTranslocoMessageformat()` after the composed provider so the native MessageFormat plugin remains registered. [src/app.html](src/app.html) keeps the engine's native translation pipes. OTA covers the root/default catalog only; feature scopes, child catalogs, and Angular localize are outside its support.
+
+### Upgrading from 1.3.x
+
+Replace the separate `provideTransloco(nativeOptions)` and ReRune registrations with the two-argument call above. Keep separate plugin providers in their native order. If your root engine is already registered elsewhere, omit the second argument to attach ReRune to it.
 
 ## Manual OTA check
 

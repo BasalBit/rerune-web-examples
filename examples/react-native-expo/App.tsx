@@ -13,11 +13,10 @@ import {
   Text,
   View,
 } from 'react-native'
-import { I18nextProvider, useTranslation } from 'react-i18next'
-import type { ReRuneClient } from '@rerune/react-native'
+import { useTranslation } from 'react-i18next'
+import type { ReRuneI18nextClient } from '@rerune/react-native'
 
 import {
-  createReRuneAsyncStorageCacheStore,
   ReRune,
   ReRuneProvider,
   useReRune,
@@ -25,20 +24,14 @@ import {
 
 import blacksmithImage from './assets/blacksmith.png'
 import writerOrbImage from './assets/writer-orb.png'
-import { i18n } from './src/i18n'
-import { resourcesByLocale } from './src/messages'
+import { startup } from './src/i18n'
 
-const DEFAULT_OTA_PUBLISH_ID =
-  'a5def444424a9dd99de9ec31ef1460e903e42db534b44ea66678c15ec9ddf1f4'
-const otaPublishId =
-  process.env.EXPO_PUBLIC_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
 const configuredTestVariant = process.env.EXPO_PUBLIC_RERUNE_VARIANT?.trim()
 const TEST_VARIANT =
   configuredTestVariant && configuredTestVariant !== ReRune.Main
     ? configuredTestVariant
     : 'vip'
 const PUBLISH_DATE = '31.08.2026'
-const reruneCacheStore = createReRuneAsyncStorageCacheStore({ prefix: 'rerune-rn-example' })
 
 type DemoScreen = 'welcome' | 'story'
 
@@ -333,29 +326,27 @@ function DemoExperience() {
 }
 
 export default function App() {
-  const [client] = useState<ReRuneClient>(() =>
-    ReRune.setup({
-      i18n,
-      otaPublishId,
-      defaultLocale: 'en',
-      logLevel: 'off',
-      bundledResources: resourcesByLocale,
-      cacheStore: reruneCacheStore,
-      updatePolicy: {
-        checkOnStart: true,
-        periodicIntervalInHours: 24,
-      },
+  const [client, setClient] = useState<ReRuneI18nextClient | null>(null)
+  const [startupError, setStartupError] = useState<Error | null>(null)
+  useEffect(() => {
+    let mounted = true
+    void startup.then(result => {
+      if (!mounted) return
+      setClient(result.client)
+      setStartupError(result.error)
     })
-  )
+    return () => { mounted = false }
+  }, [])
+
+  if (startupError) return <Text accessibilityRole="alert">Could not initialize translations.</Text>
+  if (!client) return <ActivityIndicator accessibilityLabel="Loading translations" />
 
   return (
     <>
       <StatusBar backgroundColor={COLORS.backgroundSecondary} barStyle="light-content" />
-      <I18nextProvider i18n={i18n}>
-        <ReRuneProvider client={client}>
-          <DemoExperience />
-        </ReRuneProvider>
-      </I18nextProvider>
+      <ReRuneProvider client={client}>
+        <DemoExperience />
+      </ReRuneProvider>
     </>
   )
 }

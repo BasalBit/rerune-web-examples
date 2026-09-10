@@ -2,7 +2,7 @@ import { classifyCheck, checkLabels, refreshText, type RefreshPhase } from '../.
 import { Component, Injectable, computed, inject, signal } from '@angular/core'
 import { bootstrapApplication } from '@angular/platform-browser'
 import { of, delay } from 'rxjs'
-import { provideTransloco, TranslocoPipe, TranslocoService } from '@jsverse/transloco'
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco'
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat'
 import { ReRune, ReRuneService } from '@rerune/angular/transloco'
 import { messages, publishId } from '../../angular-shared/messages'
@@ -88,13 +88,14 @@ class App {
 
 bootstrapApplication(App, {
   providers: [
-    provideTransloco({ config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true }, loader: DemoLoader }),
-    provideTranslocoMessageformat(),
     ReRune.provide({
       otaPublishId: publishId,
-      supportedLocales: ['en', 'de'],
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
+    }, {
+      config: { availableLangs: ['en', 'de'], defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
+      loader: DemoLoader,
     }),
+    provideTranslocoMessageformat(),
   ],
 }).catch(error => console.error(error))

@@ -1,6 +1,6 @@
 # React Native with Expo
 
-A runnable welcome/story example using [@rerune/react-native 1.3.1](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
+A runnable welcome/story example using [@rerune/react-native 1.4.0](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
 
 ## Run
 
@@ -30,9 +30,26 @@ Restart the development server after changing environment values. Local `.env` f
 
 Console logging is `off`. A publishable read ID is sufficient; no administration credential is used.
 
-## Integration location
+## Integration
 
-[App.tsx](App.tsx) calls `ReRune.setup(...)` and renders `I18nextProvider` and `ReRuneProvider`. [src/i18n.ts](src/i18n.ts) configures i18next, and application text uses `useTranslation()`. OTA targets the `translation` namespace. ReRune preserves later i18next resource writes beneath OTA overrides. Removing an override restores the latest application value.
+[src/i18n.ts](src/i18n.ts) owns the i18next instance, its native options, and the single ReRune setup promise:
+
+```ts
+const client = await ReRune.setup({ i18n, otaPublishId }, i18nOptions)
+```
+
+Native `resources`, `lng`, `fallbackLng`, and interpolation settings stay in `i18nOptions`. Keep any i18next `.use(...)` plugins on the same instance. ReRune derives localization configuration from that instance.
+
+[App.tsx](App.tsx) waits for the shared setup promise, shows a loading indicator until native initialization finishes, and then mounts `ReRuneProvider`. This provider supplies both ReRune and native i18next context. Translation consumers keep `useTranslation()`. Setup waits for native initialization; cached OTA restoration and update checks continue asynchronously.
+
+OTA targets the `translation` namespace. ReRune preserves later i18next resource writes beneath OTA overrides. Removing an override restores the latest application value.
+
+### Upgrading from 1.3.x
+
+- Await `ReRune.setup(...)` and pass its resolved `ReRuneI18nextClient` to the provider.
+- Replace the separate `i18n.init(nativeOptions)` call by passing those options as setup's second argument. For an already initialized instance, omit that argument.
+- Remove `bundledResources`, `defaultLocale`, and `supportedLocales` from React/RN setup. Keep resources and language settings in native i18next configuration.
+- Replace `I18nextProvider` with `ReRuneProvider`; preserve `defaultNS` on the provider if your app sets it.
 
 ## Manual OTA check
 

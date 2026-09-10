@@ -2,7 +2,7 @@ import { classifyCheck, checkLabels, refreshText, type RefreshPhase } from '../.
 import { Component, Injectable, computed, inject, signal } from '@angular/core'
 import { bootstrapApplication } from '@angular/platform-browser'
 import { of, delay } from 'rxjs'
-import { provideTranslateService, TranslateLoader, TranslatePipe, TranslateService, TranslateCompiler } from '@ngx-translate/core'
+import { TranslateLoader, TranslatePipe, TranslateService, TranslateCompiler } from '@ngx-translate/core'
 import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler'
 import { ReRune, ReRuneService } from '@rerune/angular/ngx-translate'
 import { messages, publishId } from '../../angular-shared/messages'
@@ -88,16 +88,15 @@ class App {
 
 bootstrapApplication(App, {
   providers: [
-    provideTranslateService({
-      lang: 'en', fallbackLang: 'en',
-      loader: { provide: TranslateLoader, useClass: DemoLoader },
-      compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
-    }),
     ReRune.provide({
       otaPublishId: publishId,
       supportedLocales: ['en', 'de'],
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
+    }, {
+      lang: 'en', fallbackLang: 'en',
+      loader: { provide: TranslateLoader, useClass: DemoLoader },
+      compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
     }),
   ],
 }).catch(error => console.error(error))

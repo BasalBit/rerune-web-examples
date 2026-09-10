@@ -42,7 +42,7 @@ The parity suite blocks hosted requests, fixes the clock, and compares React wit
 
 Angular deliberately uses sibling React CSS, PNG files, and pure bundled message data. Keep those relative paths aligned. `angular-shared` converts bundled interpolation and plurals into native MessageFormat syntax; it is not an npm package. `examples/shared/refresh.ts` contains only application-owned check status text and result classification. Expo's Metro configuration explicitly watches that non-package source folder.
 
-Keep `ReRune.setup(...)` for React/React Native and one engine-specific `ReRune.provide(...)` for Angular. Do not add SDK transport, response normalization, runtime shims, or framework abstractions to these apps.
+Keep asynchronous `ReRune.setup(otaOptions, i18nOptions)` and one `ReRuneProvider` for React/React Native. Keep engine-specific `ReRune.provide(otaOptions, nativeOptions)` for Angular, with separate plugin providers in their native order. Do not add SDK transport, response normalization, runtime shims, or framework abstractions to these apps.
 
 Angular's native build cache is disabled in both apps. CI-mode production builds were verified. Cache-enabled LMDB operation remains unverified. The existing MessageFormat CommonJS and Angular/Vite development-tool peer warnings do not establish a runtime failure.
 

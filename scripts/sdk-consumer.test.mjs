@@ -45,18 +45,19 @@ test('published browser store keeps newer session copy over stale disk after a f
 
 test('published React setup preserves late i18next writes and activates OTA after cache-write failure', async () => {
   const i18n = i18next.createInstance()
-  await i18n.init({ lng: 'en', fallbackLng: 'en', resources: { en: { translation: { welcome_title: 'Bundled' } } } })
   const storage = storageFixture()
   let version = 1
   let records = [{ key: 'welcome_title', values: [{ lang: 'en', value: 'Published' }] }]
-  const client = ReRune.setup({
-    i18n, otaPublishId: 'public-consumer-test', supportedLocales: ['en'], logLevel: 'off',
+  const client = await ReRune.setup({
+    i18n, otaPublishId: 'public-consumer-test', logLevel: 'off',
     cacheStore: createReRuneBrowserCacheStore({ storage }), updatePolicy: { checkOnStart: false },
     fetch: async url => Response.json(String(url).includes('manifest') ? {
       version, main_language: 'en', locales: { en: { version, minimum_delta_base_version: version, url: 'https://fixture.invalid/en.json' } },
     } : records),
-  })
+  }, { lng: 'en', fallbackLng: 'en', resources: { en: { translation: { welcome_title: 'Bundled' } } } })
   try {
+    assert.equal(client.i18n, i18n)
+    assert.equal(i18n.isInitialized, true)
     await client.initialize()
     const initial = await client.checkForUpdates()
     assert.equal(initial.hasErrors, false)
@@ -74,6 +75,43 @@ test('published React setup preserves late i18next writes and activates OTA afte
     assert.equal(i18n.t('welcome_title'), 'Late application copy')
     assert.deepEqual(client.getState().warnings, [])
   } finally {
+    client.dispose()
+  }
+})
+
+test('native setup waits for the i18next loader without waiting for cache restoration', { timeout: 5000 }, async () => {
+  const i18n = i18next.createInstance()
+  const nativeRead = Promise.withResolvers()
+  const cacheRead = Promise.withResolvers()
+  let releaseNative
+  let resolved = false
+  i18n.use({
+    type: 'backend',
+    read(_language, _namespace, done) {
+      releaseNative = () => done(null, { welcome_title: 'Native loader copy' })
+      nativeRead.resolve()
+    },
+  })
+  const pending = ReRune.setup({
+    i18n, otaPublishId: 'native-setup-test', logLevel: 'off', updatePolicy: { checkOnStart: false },
+    cacheStore: {
+      ...createReRuneBrowserCacheStore({ storage: storageFixture() }),
+      readManifest: () => cacheRead.promise,
+    },
+  }, { lng: 'en', fallbackLng: false })
+  void pending.then(() => { resolved = true })
+  await nativeRead.promise
+  assert.equal(resolved, false)
+  releaseNative()
+  const client = await pending
+  try {
+    assert.equal(client.i18n, i18n)
+    assert.equal(i18n.isInitialized, true)
+    assert.equal(i18n.t('welcome_title'), 'Native loader copy')
+    await assert.rejects(ReRune.setup({ i18n, otaPublishId: 'duplicate-init-test' }, { lng: 'en' }), /already initialized/)
+  } finally {
+    cacheRead.resolve(null)
+    await client.initialize()
     client.dispose()
   }
 })
