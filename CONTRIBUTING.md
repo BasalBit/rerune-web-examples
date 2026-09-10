@@ -48,6 +48,4 @@ Angular's native build cache is disabled in both apps. CI-mode production builds
 
 ## Evidence and release scope
 
-The [feature record](docs/features/refresh-results.md) and [dated extraction note](docs/sessions/2026-09-09-public-examples.md) distinguish executable evidence from unverified platforms. Screenshots under `docs/screenshots/` are selected browser-test outputs; regenerate and review them when visible behavior changes.
-
 This repository publishes no npm packages. The workspace and app manifests stay `private: true`; the GitHub examples repository remains public. CI needs no private repository secrets and does not contact mutable hosted demo data during browser tests.

@@ -1,6 +1,7 @@
 node_modules/
 .pnpm-store/
 .artifacts/
+/docs/
 dist/
 .expo/
 .angular/

@@ -62,8 +62,4 @@ OTA grammar is plain text, declared interpolation, and one cardinal plural. Nati
 
 The built-in browser cache retains updates in session memory when localStorage is unavailable or a write fails. Newer session values take precedence over older stored copy. Session memory is lost on reload; a later successful write persists the current value.
 
-## Screenshot
-
-![Angular with Transloco](../../docs/screenshots/transloco-mobile-en-story.png)
-
-See [Contributing](../../CONTRIBUTING.md) for automated checks and [asset provenance](../../docs/assets.md) for the artwork and MIT notice.
+See [Contributing](../../CONTRIBUTING.md) for automated checks and the [MIT notice](../../LICENSE) for code and artwork licensing.

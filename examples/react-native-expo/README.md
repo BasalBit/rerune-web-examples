@@ -70,10 +70,4 @@ OTA grammar is plain text, declared interpolation, and one cardinal plural. Nati
 
 Cached OTA copy and bundled resources can provide text offline. If an AsyncStorage write fails, the built-in cache retains the update in session memory and allows it to activate. Newer session values take precedence over older stored copy. Session memory is lost on restart; a later successful write persists the current value.
 
-## Screenshot
-
-The image below is the **React browser visual reference**, not a native screenshot. Expo retains native controls, layout, and artwork; native visual parity still needs a device check.
-
-![Browser visual reference](../../docs/screenshots/react-mobile-en-welcome.png)
-
-See [Contributing](../../CONTRIBUTING.md) for automated checks and [asset provenance](../../docs/assets.md) for the artwork and MIT notice.
+See [Contributing](../../CONTRIBUTING.md) for automated checks and the [MIT notice](../../LICENSE) for code and artwork licensing.
