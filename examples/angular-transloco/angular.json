@@ -26,13 +26,18 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
+                "glob": "*OFL.txt",
+                "input": "../shared/fonts",
+                "output": "assets/fonts"
+              },
+              {
                 "glob": "*.png",
-                "input": "../react-web-vite/src/assets",
-                "output": "assets"
+                "input": "../shared/assets",
+                "output": "."
               }
             ],
             "styles": [
-              "../react-web-vite/src/app.css",
+              "../shared/reading.css",
               "../angular-shared/styles.css"
             ]
           },

@@ -23,13 +23,13 @@ export default defineConfig({
     launchOptions: { args: ['--use-mock-keychain', '--disable-crash-reporter'] },
   },
   projects: [
-    { name: 'browser', testMatch: ['ota.spec.ts', 'angular.spec.ts'], outputDir: '.artifacts/browser' },
+    { name: 'browser', testMatch: ['ota.spec.ts', 'angular.spec.ts', 'chapter.spec.ts'], outputDir: '.artifacts/browser' },
     { name: 'parity', testMatch: 'parity.spec.ts', outputDir: '.artifacts/angular-ui-parity' },
   ],
   webServer: [
-    ['react-web-vite', 5173, 'dist'],
-    ['angular-ngx-translate', 4201, 'dist/browser'],
-    ['angular-transloco', 4202, 'dist/browser'],
+    ['react-web-vite', 15173, 'dist'],
+    ['angular-ngx-translate', 14201, 'dist/browser'],
+    ['angular-transloco', 14202, 'dist/browser'],
   ].map(([app, port, output]) => ({
     command: `node scripts/serve-built.ts ${app} ${port} ${output}`,
     url: `http://127.0.0.1:${port}/`,

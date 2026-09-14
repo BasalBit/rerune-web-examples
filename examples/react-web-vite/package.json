@@ -4,12 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node ../../scripts/copy-font-licenses.mjs dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
-    "@rerune/react": "1.5.0",
+    "@rerune/react": "1.5.1",
     "i18next": "^25.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

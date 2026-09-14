@@ -1,6 +1,2 @@
-declare module '*.png' {
-  // Ambient asset declarations cannot use a top-level type import without becoming module augmentations.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const source: import('react-native').ImageSourcePropType
-  export default source
-}
+declare module '*.ttf' { const source: number; export default source }
+declare module '*.png' { const source: number; export default source }

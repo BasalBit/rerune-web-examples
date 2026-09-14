@@ -1,0 +1,34 @@
+@switch (id) {
+  @case ('atlas') {
+    <svg:path fill="#D5DCC6" d="M0 0h600v400H0z" />
+    @for (i of rings; track i) { <svg:ellipse cx="484" cy="345" [attr.rx]="(94 + i * 13) / aspect()" [attr.ry]="94 + i * 13" fill="none" stroke="#708B79" stroke-opacity=".23" stroke-width="1.3" /> }
+    <svg:ellipse cx="457" cy="157" [attr.rx]="39 / aspect()" ry="39" fill="#D58C4E" />
+    <svg:path d="M0 290C140 340 207 345 348 278C440 231 500 254 600 267V400H0Z" fill="#547D79" />
+    <svg:path d="M0 341C166 379 304 265 600 319V400H0Z" fill="#244E52" />
+    <svg:path d="M0 386C163 315 321 397 600 354V400H0Z" fill="#163A41" />
+  }
+  @case ('lantern') {
+    <svg:path fill="#243E59" d="M0 0h600v400H0z" />
+    @for (i of stars; track i) { <svg:ellipse [attr.cx]="(i * 97 + 37) % 600" [attr.cy]="(i * 43 + 27) % 260" [attr.rx]="(i % 3 === 0 ? 2 : 1) / aspect()" [attr.ry]="i % 3 === 0 ? 2 : 1" fill="#B4CBC9" /> }
+    <svg:ellipse cx="463" cy="113" [attr.rx]="41 / aspect()" ry="41" fill="#F0D6A0" /><svg:ellipse cx="449" cy="102" [attr.rx]="37 / aspect()" ry="37" fill="#243E59" />
+    <svg:path d="M0 319L141 147L311 339L463 206L600 328V400H0Z" fill="#3B5A69" />
+    <svg:path d="M0 368L207 222L361 373L505 285L600 355V400H0Z" fill="#182C42" />
+    <svg:defs><svg:radialGradient [id]="glow"><svg:stop stop-color="#F4B35A" stop-opacity=".6" /><svg:stop offset="1" stop-color="#F4B35A" stop-opacity="0" /></svg:radialGradient></svg:defs>
+    <svg:ellipse cx="316" cy="316" [attr.rx]="50 / aspect()" ry="50" [attr.fill]="'url(#' + glow + ')'" />
+    <svg:rect x="307" y="299" width="18" height="30" rx="4" fill="#F4BE69" /><svg:path d="M308 299a8 8 0 0 1 16 0" fill="none" stroke="#F4BE69" stroke-width="2" />
+  }
+  @case ('garden') {
+    <svg:path fill="#E8CBAC" d="M0 0h600v400H0z" /><svg:ellipse cx="468" cy="128" [attr.rx]="69 / aspect()" ry="69" fill="#D99D7E" />
+    <svg:path d="M0 325Q277 244 600 318V400H0Z" fill="#698475" />
+    @for (flower of flowers; track $index) {
+      <svg:g>
+        <svg:path [attr.d]="'M' + flower.x + ' 410Q' + (flower.x - 18) + ' ' + (flower.y + 50) + ' ' + flower.x + ' ' + flower.y" fill="none" stroke="#34584E" stroke-width="3" />
+        @for (j of leaves; track j) {
+          <svg:ellipse [attr.cx]="flower.x - 17" [attr.cy]="flower.y + 35 + j * 33" rx="17.5" ry="7" fill="#34584E" />
+          <svg:ellipse [attr.cx]="flower.x + 12" [attr.cy]="flower.y + 50 + j * 33" rx="15" ry="6.5" fill="#43695A" />
+        }
+        <svg:ellipse [attr.cx]="flower.x" [attr.cy]="flower.y" [attr.rx]="11 / aspect()" ry="11" fill="#F2DFB6" /><svg:ellipse [attr.cx]="flower.x" [attr.cy]="flower.y" [attr.rx]="4 / aspect()" ry="4" fill="#BB7456" />
+      </svg:g>
+    }
+  }
+}

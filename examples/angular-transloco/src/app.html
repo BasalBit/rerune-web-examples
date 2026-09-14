@@ -1,96 +1,105 @@
-<div class="demo-background" (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
-  @if (screen() === 'welcome') {
-    <main class="screen-shell welcome-screen screen-enter">
-      <header class="welcome-copy">
-        <span class="badge-chip">{{ 'welcome_badge' | transloco }}</span>
-        <h1>{{ 'welcome_title' | transloco }}</h1>
-        <p>{{ 'welcome_subtitle' | transloco }}</p>
-      </header>
-      <div class="welcome-image-shell">
-        <img alt="" src="assets/writer-orb.png">
-        <div class="welcome-image-fade"></div>
-        <p class="welcome-publish-date">{{ 'publish_date' | transloco: { publish_date: date } }}</p>
-      </div>
-      <section aria-label="Localization status" class="status-card">
-        <div class="status-row">
-          <span>{{ 'welcome_locale_label' | transloco }}</span>
-          <select [attr.aria-label]="'welcome_locale_label' | transloco" [value]="locale()" (change)="language($event)">
-            @for (lang of availableLocales(); track lang) { <option [value]="lang">{{ lang }}</option> }
+<div class="chapter-app">
+  <main #scroll class="app-scroll" (scroll)="rememberScroll($event)">
+    <div class="page" [class.reader-page]="reader()" [class.library-page]="!reader()">
+      <header [class.reader-header]="reader()" [class.library-header]="!reader()">
+        @if (reader()) {
+          <button type="button" class="icon-button" (click)="back()" [attr.aria-label]="'back_library' | transloco"><svg chapterIcon="back"></svg></button>
+          <strong>{{ story().title | transloco }}</strong>
+        } @else { <span class="wordmark"><img class="brand-logo" src="rerune-logo.png" alt="" aria-hidden="true"><span>ReRune</span></span> }
+        <label class="language-picker"><svg chapterIcon="globe"></svg><span aria-hidden="true">{{ locale().toUpperCase() }}⌄</span>
+          <select [attr.aria-label]="'welcome_locale_label' | transloco" [value]="systemLocale() ? 'system' : locale()" (change)="language($event)">
+            <option value="system">{{ 'welcome_locale_system_default' | transloco }}</option>
+            @for (lang of availableLocales(); track lang) { <option [value]="lang">{{ nativeNames[lang] || rerune.state().localeNames[lang] || lang }}</option> }
           </select>
-        </div>
-        <div class="status-divider"></div>
-        <div class="status-row">
-          <span>{{ 'welcome_variant_label' | transloco }}</span>
-          <button [attr.aria-checked]="isTestVariantActive()" [attr.aria-label]="'welcome_variant_label' | transloco"
-            class="variant-switch" role="switch" type="button" (click)="toggleVariant()">
-            <strong class="variant-switch-value">{{ rerune.state().variant }}</strong>
-            <span aria-hidden="true" class="variant-switch-track"><span class="variant-switch-thumb"></span></span>
-          </button>
-        </div>
-        <div class="status-divider"></div>
-        <div class="status-row">
-          <span>{{ checkLabels(locale()).last }}</span>
-          <strong>{{ lastSynced() ?? checkLabels(locale()).empty }}</strong>
-        </div>
-      </section>
-      <button aria-live="polite" class="refresh-copy" [class.refresh-copy-success]="refreshPhase() === 'success'"
-        [disabled]="isRefreshing()" (click)="refresh()" type="button">
-        @if (isRefreshing()) { <span aria-hidden="true" class="spinner spinner-small"></span> }
-        {{ refreshText(refreshPhase(), locale(), updatedLocales()) }}
-      </button>
-      <button class="primary-button" (click)="screen.set('story')" type="button">{{ 'welcome_open_story_cta' | transloco }}</button>
-    </main>
-  } @else {
-    <main class="screen-shell story-screen screen-enter">
-      <button aria-label="Back" class="back-button" type="button" (click)="screen.set('welcome')">
-        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
-      </button>
-      <img alt="" class="story-image" src="assets/blacksmith.png">
-      <span class="badge-chip">{{ 'story_caption' | transloco }}</span>
-      <h1 class="story-title">{{ 'story_title' | transloco }}</h1>
-      <p class="story-copy">{{ 'story_body_primary' | transloco }}</p>
-      <p class="story-copy">{{ 'story_body_secondary' | transloco }}</p>
-      <div class="story-examples">
-        <p>{{ 'ammount_of_keys' | transloco: { count: 1 } }}</p>
-        <p>{{ 'ammount_of_keys' | transloco: { count: 4 } }}</p>
-      </div>
-      <button aria-live="polite" class="primary-button story-refresh-button" [disabled]="isRefreshing()" (click)="refresh()" type="button">
-        @if (isRefreshing()) { <span aria-hidden="true" class="spinner"></span> }
-        {{ refreshPhase() === 'idle' ? ('story_refresh_cta' | transloco) : refreshText(refreshPhase(), locale(), updatedLocales()) }}
-      </button>
-    </main>
-  }
-  @if (showTools) {
-    <aside class="demo-tools" aria-label="Adapter test tools">
-      <h2>Adapter test tools</h2>
-      <dl>
-        <div><dt>Status</dt><dd>{{ rerune.state().status }}</dd></div>
-        <div><dt>Revision</dt><dd>{{ rerune.state().revision }}</dd></div>
-        <div><dt>Main language</dt><dd>{{ rerune.state().mainLanguage || 'Awaiting manifest' }}</dd></div>
-        <div><dt>Updated locales</dt><dd>{{ rerune.state().lastResult?.updatedLocales?.join(', ') || 'None' }}</dd></div>
-      </dl>
-      @if (actionError()) { <p class="demo-tools-error" role="alert">{{ actionError() }}</p> }
-      @for (error of rerune.state().lastResult?.errors || []; track $index) {
-        <p class="demo-tools-error" role="alert">{{ error.type }}: {{ error.message }}</p>
+        </label>
+        @if (!reader()) { <button type="button" class="icon-button settings-button" [attr.aria-label]="'reading_settings' | transloco" (click)="settings.showModal()"><svg chapterIcon="settings"></svg></button> }
+      </header>
+      @if (reader()) {
+        <div class="reader-cover"><svg [chapterCover]="currentId()"></svg><ng-container *ngTemplateOutlet="bookmarkButton; context: { id: currentId(), onCover: true }" /></div>
+        <ng-container *ngTemplateOutlet="progress" />
+        @if (finished()) {
+          <section class="ending"><svg chapterIcon="book"></svg><h1 tabindex="-1">{{ 'reader_end_title' | transloco }}</h1><p>{{ 'reader_end_body' | transloco }}</p></section>
+        } @else {
+          <article class="prose"><h1 tabindex="-1">{{ chapter().title | transloco }}</h1><p class="byline">{{ 'story_by' | transloco: { author: story().author } }}</p>
+            @for (key of chapter().paragraphs; track $index) { <p>{{ key | transloco }}</p> }
+          </article>
+        }
+        <button type="button" class="primary-button" (click)="advance()">{{ (finished() ? 'read_again' : completed() === 1 ? 'finish_story' : 'next_chapter') | transloco }}</button>
+        <ng-container *ngTemplateOutlet="refreshControl" />
+      } @else {
+        <section class="intro"><h1 tabindex="-1">{{ (book().tab === 'library' ? 'welcome_title' : book().tab === 'discover' ? 'discover_title' : 'saved_title') | transloco }}</h1>
+          <p>{{ (book().tab === 'library' ? 'welcome_subtitle' : book().tab === 'discover' ? 'discover_subtitle' : 'saved_subtitle') | transloco }}</p>
+        </section>
+        @if (book().tab === 'library') {
+          <div class="library-columns">
+            <section class="featured"><div class="section-label"><span>{{ 'currently_reading' | transloco }}</span><span>{{ 'collection_issue' | transloco }}</span></div>
+              <div class="featured-cover" [class.lantern]="currentId() === 'lantern'"><svg [chapterCover]="currentId()"></svg>
+                <div class="cover-copy"><h2>{{ story().title | transloco }}</h2><p>{{ 'story_by' | transloco: { author: story().author } }}</p><ng-container *ngTemplateOutlet="bookmarkButton; context: { id: currentId(), onCover: true }" /></div>
+              </div><ng-container *ngTemplateOutlet="progress" />
+              <button type="button" class="primary-button" (click)="openStory(currentId())">{{ 'welcome_open_story_cta' | transloco }}<svg chapterIcon="arrow"></svg></button>
+            </section>
+            <section class="shelf"><div class="shelf-heading"><h2>{{ 'next_chapter_shelf' | transloco }}</h2><button type="button" class="text-button" (click)="selectTab('discover')">{{ 'see_all' | transloco }}</button></div>
+              <div class="story-list">@for (id of recommendations(); track id) { <ng-container *ngTemplateOutlet="card; context: { id }" /> }</div>
+              <aside class="quote"><span>{{ 'reading_moment' | transloco }}</span><blockquote>{{ 'reading_quote' | transloco }}</blockquote></aside>
+            </section>
+          </div>
+        } @else {
+          @if (book().tab === 'discover') {
+            <div class="filters" [attr.aria-label]="'nav_discover' | transloco">@for (id of filters; track id) {
+              <button type="button" [attr.aria-pressed]="book().filter === id" (click)="filter(id)">{{ (id ? storyFor(id).genre : 'filter_all') | transloco }}</button>
+            }</div>
+          }
+          @if (book().tab === 'saved' && !book().saved.length) {
+            <section class="empty-state"><svg chapterIcon="bookmark"></svg><h2>{{ 'saved_empty_title' | transloco }}</h2><p>{{ 'saved_empty_body' | transloco }}</p>
+              <button type="button" class="primary-button" (click)="selectTab('discover')">{{ 'explore_stories' | transloco }}</button>
+            </section>
+          } @else { <div class="story-list discovery-list">@for (id of visibleStories(); track id) { <ng-container *ngTemplateOutlet="card; context: { id, detailed: true }" /> }</div> }
+        }
+        <footer><ng-container *ngTemplateOutlet="refreshControl" /><p>{{ 'library_footer' | transloco }}</p></footer>
       }
-      <h3>Plural forms</h3>
-      <div class="demo-tools-counter">
-        <button type="button" aria-label="Decrease count" (click)="changeCount(-1)">−</button>
-        <output>{{ count() }}</output>
-        <button type="button" aria-label="Increase count" (click)="changeCount(1)">+</button>
-      </div>
-      <p data-testid="plural">{{ 'ammount_of_keys' | transloco: { count: count() } }}</p>
-      <h3>Application-owned text</h3>
-      <p>{{ 'demo_bundled_only' | transloco }}</p>
-      <button type="button" (click)="addLate()">Add application translation</button>
-      @if (lateAdded()) { <p data-testid="late">{{ 'demo_late_added' | transloco }}</p> }
-      <details>
-        <summary>Connect your own ReRune project</summary>
-        <label>Publishable OTA ID<input #project [value]="projectId" autocomplete="off"></label>
-        <button type="button" (click)="changeProject(project.value)">Use project &amp; reload</button>
-        <p>Use a public, read-only OTA publish ID. Root translations receive OTA updates; named scopes and child catalogs stay application-owned.</p>
-      </details>
-      <p>Cache check: synchronize once, block OTA requests in DevTools, then reload.</p>
-    </aside>
+      <p role="status" class="feedback">{{ feedback() ? refreshText(feedback()!, locale(), updatedLocales()) : '' }}</p>
+    </div>
+    @if (showTools) {
+      <aside class="demo-tools" aria-label="Adapter test tools">
+        <h2>Adapter test tools</h2><dl>
+          <div><dt>Status</dt><dd>{{ rerune.state().status }}</dd></div>
+          <div><dt>Revision</dt><dd>{{ rerune.state().revision }}</dd></div>
+          <div><dt>Main language</dt><dd>{{ rerune.state().mainLanguage || 'Awaiting manifest' }}</dd></div>
+          <div><dt>Updated locales</dt><dd>{{ rerune.state().lastResult?.updatedLocales?.join(', ') || 'None' }}</dd></div>
+        </dl>
+        @for (error of rerune.state().lastResult?.errors || []; track $index) { <p class="demo-tools-error" role="alert">{{ error.type }}: {{ error.message }}</p> }
+        <h3>Plural forms</h3><div class="demo-tools-counter"><button type="button" aria-label="Decrease count" (click)="changeCount(-1)">−</button><output>{{ count() }}</output><button type="button" aria-label="Increase count" (click)="changeCount(1)">+</button></div>
+        <p data-testid="plural">{{ 'plural_sample' | transloco: { count: count() } }}</p>
+        <h3>Application-owned text</h3><p>{{ 'demo_bundled_only' | transloco }}</p><button type="button" (click)="addLate()">Add application translation</button>
+        @if (lateAdded()) { <p data-testid="late">{{ 'demo_late_added' | transloco }}</p> }
+        <details><summary>Connect your own ReRune project</summary><label>Publishable OTA ID<input #project [value]="projectId" autocomplete="off"></label><button type="button" (click)="changeProject(project.value)">Use project &amp; reload</button>
+          <p>Root translations receive OTA updates; named scopes and child catalogs stay application-owned.</p></details>
+        <p>Cache check: synchronize once, block OTA requests, then reload. This demo does not install an offline app shell.</p>
+      </aside>
+    }
+  </main>
+  @if (!reader()) {
+    <nav class="bottom-nav" aria-label="ReRune">@for (tab of tabs; track tab) {
+      <button type="button" [attr.aria-current]="book().tab === tab ? 'page' : null" (click)="selectTab(tab)"><span><svg [chapterIcon]="tab === 'saved' ? 'bookmark' : tab"></svg></span>{{ (tab === 'library' ? 'nav_library' : tab === 'discover' ? 'nav_discover' : 'nav_saved') | transloco }}</button>
+    }</nav>
   }
+  <dialog #settings class="settings-sheet" aria-labelledby="settings-title" (click)="dismissSheet($event, settings)">
+    <div class="sheet-content"><form method="dialog"><button type="submit" class="icon-button" [attr.aria-label]="'back_library' | transloco"><svg chapterIcon="close"></svg></button></form>
+      <h2 id="settings-title">{{ 'reading_settings' | transloco }}</h2><p>{{ 'settings_description' | transloco }}</p>
+      <button type="button" class="edition-switch" role="switch" [attr.aria-checked]="rerune.state().variant !== 'Main'" [attr.aria-label]="'translation_variant' | transloco" [disabled]="savingVariant()" (click)="toggleVariant()">
+        <span>{{ 'translation_variant' | transloco }}<small>{{ rerune.state().variant }}</small></span><span class="switch-track"></span>
+      </button>
+      @if (variantError()) { <p role="alert">{{ 'variant_save_error' | transloco }}</p> }
+      <div class="samples"><p>{{ 'publish_date' | transloco: { publish_date: date } }}</p><p>{{ 'plural_sample' | transloco: { count: 1 } }}<br>{{ 'plural_sample' | transloco: { count: 2 } }}</p></div>
+      <ng-container *ngTemplateOutlet="refreshControl" /><p role="status" class="feedback">{{ feedback() ? refreshText(feedback()!, locale(), updatedLocales()) : '' }}</p><p class="session-note">{{ 'session_note' | transloco }}</p>
+    </div>
+  </dialog>
 </div>
+<ng-template #refreshControl><div class="refresh-area"><button type="button" class="outline-button" [disabled]="refreshing()" (click)="refresh()"><svg chapterIcon="refresh"></svg>{{ (refreshing() ? 'welcome_refresh_state_checking' : 'story_refresh_cta') | transloco }}</button></div></ng-template>
+<ng-template #progress><div class="reading-progress"><div><strong>{{ finished() ? ('story_finished' | transloco) : ('chapter_progress' | transloco: progressArgs()) }}</strong><span>{{ completed() / 2 * 100 }}%</span></div><progress [attr.aria-label]="finished() ? ('story_finished' | transloco) : ('chapter_progress' | transloco: progressArgs())" [value]="completed()" max="2"></progress></div></ng-template>
+<ng-template #bookmarkButton let-id="id" let-onCover="onCover"><button type="button" [attr.data-testid]="'bookmark-' + id" class="icon-button bookmark" [class.on-cover]="onCover" [attr.aria-pressed]="saved(id)" [attr.aria-label]="(saved(id) ? 'remove_saved' : 'save_story') | transloco" (click)="bookmark(id)"><svg chapterIcon="bookmark"></svg></button></ng-template>
+<ng-template #card let-id="id" let-detailed="detailed"><article class="story-card" [class.detailed]="detailed">
+  <button class="card-open" type="button" [attr.data-testid]="'open-' + id" [attr.aria-label]="storyFor(id).title | transloco" (click)="openStory(id)">
+    <span class="card-cover"><svg [chapterCover]="id"></svg></span><span class="card-copy"><span class="genre">{{ storyFor(id).genre | transloco }}</span><strong>{{ storyFor(id).title | transloco }}</strong><span>{{ storyFor(id).author }}</span>@if (detailed) { <span class="description">{{ storyFor(id).description | transloco }}</span> }</span>
+  </button><ng-container *ngTemplateOutlet="bookmarkButton; context: { id }" />
+</article></ng-template>

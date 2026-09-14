@@ -1,0 +1,9 @@
+{
+  "name": "angular-example-shared",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@angular/core": "18.2.14",
+    "@rerune/core": "1.5.1"
+  }
+}

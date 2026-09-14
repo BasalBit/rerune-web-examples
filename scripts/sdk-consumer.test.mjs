@@ -115,3 +115,25 @@ test('native setup waits for the i18next loader without waiting for cache restor
     client.dispose()
   }
 })
+
+test('published SDK accepts hosted cardinal plurals with explicit numeric offset zero', async () => {
+  const client = await ReRune.setup({
+    otaPublishId: 'zero-offset-consumer-test', logLevel: 'off', updatePolicy: { checkOnStart: false },
+    fetch: async url => Response.json(String(url).includes('manifest') ? {
+      version: 1, main_language: 'en', locales: { en: { version: 1, minimum_delta_base_version: 1, url: 'https://fixture.invalid/en.json' } },
+    } : [{ key: 'plural_sample', placeholders: [{ name: 'count', type: 'int' }], values: [{ lang: 'en',
+      message: { parts: [{ variant: { variable: 'count', offset: 0, forms: [
+        { selector: 'one', parts: [{ text: 'One published key' }] },
+        { selector: 'other', parts: [{ text: '{{count}} published keys' }] },
+      ] } }] },
+    }] }]),
+  }, { lng: 'en', fallbackLng: 'en', resources: { en: { translation: { plural_sample_one: 'Bundled one', plural_sample_other: 'Bundled other' } } } })
+  try {
+    await client.initialize()
+    const result = await client.checkForUpdates()
+    assert.equal(result.hasErrors, false)
+    assert.equal(result.hasWarnings, false)
+    assert.equal(client.i18n.t('plural_sample', { count: 1 }), 'One published key')
+    assert.equal(client.i18n.t('plural_sample', { count: 2 }), '2 published keys')
+  } finally { client.dispose() }
+})

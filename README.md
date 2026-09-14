@@ -1,6 +1,6 @@
 # ReRune examples
 
-Run ReRune OTA translations in an ordinary React, React Native, or Angular application. Each app consumes the public **1.5.0** npm packages and preserves its translation engine's normal rendering APIs.
+A standalone consumer repository for trying ReRune OTA translations in React, React Native, and Angular. Clone this repository and install its npm dependencies; no other ReRune repository is needed. Each app consumes the public **1.5.1** npm packages and preserves its translation engine's normal rendering APIs.
 
 ## Choose an app
 
@@ -22,21 +22,33 @@ pnpm install --frozen-lockfile
 pnpm dev:react
 ```
 
-Open [localhost:5173](http://127.0.0.1:5173). Choose another command from the table for Angular or Expo. Angular uses ports 4201 and 4202. No SDK source checkout, SDK build, private registry, or npm credentials are required.
+Open [localhost:5173](http://127.0.0.1:5173). Choose another command from the table for Angular or Expo. Angular uses ports 4201 and 4202. The SDK is downloaded from public npm. No SDK source checkout, SDK build, private registry, or npm credentials are required.
 
-The apps use a public demonstration project by default. Each guide explains how to supply your own publishable read ID. Never use an administration credential. Console logging defaults to `off`.
+Every app hardcodes the same public demo OTA publish ID:
 
-## Integration in 1.5.0
+```text
+03141fc5dde6e5a1f9debf99ee68bbb125dc830412fdfb85af4834d3de341b3b
+```
+
+The commands above work without a `.env` file, ReRune account, project creation, or separate setup script. All required ReRune icons, fonts, story artwork, and bundled translations are included in this repository. Development handoff notes, screenshots, and recordings are not needed to run an app.
+
+After installation, the apps can display bundled copy when the OTA service is unreachable. Live updates need internet access. Each app guide describes optional overrides for your own publishable read ID; console logging defaults to `off`. Expo also needs an SDK 54-compatible client or native development build, as described in its guide.
+
+## Integration in 1.5.1
 
 React and React Native await `ReRune.setup(otaOptions, i18nOptions)` and render one `ReRuneProvider`. Native resources and language configuration stay in i18next. Angular uses `ReRune.provide(otaOptions, nativeOptions)` to compose its root engine provider, preserving native loaders and plugins.
 
-In 1.5.0, React and React Native can create an isolated i18next instance from the supplied native options. Apps with plugins can still pass their own instance. Angular keeps its existing combined provider API. Each app guide compares **Before ReRune**, **After ReRune**, and **Removing ReRune**, using the same native configuration and translation calls.
+In 1.5.1, React and React Native can create an isolated i18next instance from the supplied native options. Apps with plugins can still pass their own instance. Angular keeps its existing combined provider API. Each app guide compares **Before ReRune**, **After ReRune**, and **Removing ReRune**, using the same native configuration and translation calls.
 
 ## What to try
 
-Open the story, change languages, select Main or vip, refresh translations, and reload after a successful check. The fixed date demonstrates interpolation; the story demonstrates cardinal plurals. Angular's additional diagnostics are available through `?tools=1`.
+ReRune includes My library, Discover with genre filters, Saved stories, and three stories with two chapters each. Finish a story or restart it. English, German, Spanish, Italian, and Portuguese are bundled; additional SDK locales appear when advertised.
 
-Refresh results remain visible until the next manual check. Clean changes show **Updated successfully**; a clean check with no visible changes shows **Already up to date**. A partial result names the changed languages. Failed and partial checks retain the previous successful-check timestamp. The timestamp starts empty on each app launch and records clean manual checks only. It is not a publication timestamp. Automatic startup and periodic checks do not change this manual-result display.
+Reading settings contains the Main/`vip` edition switch, a fixed date interpolation example, and cardinal plurals under the logical key `plural_sample`. Refresh from the library, reader, or settings. Angular's adapter diagnostics remain available through `?tools=1`.
+
+Bookmarks, progress, filters, tabs, and scroll stay in the app session through language and live-text changes. Only SDK translation data and the edition selection are cached persistently. The date in settings is a fixed example, not a synchronization timestamp. Refresh feedback distinguishes changed, unchanged, partially updated, and failed checks; partial results name the updated locales.
+
+SDK **1.5.1** accepts hosted cardinal plurals with an omitted offset or explicit numeric `offset: 0`. The examples consume the published packages and unchanged OTA payloads.
 
 ## Boundaries
 
@@ -50,4 +62,4 @@ Refresh results remain visible until the next manual check. Clean changes show *
 
 [ReRune](https://rerune.io) · [Developer guide](https://rerune.io/developer-localization-platform) · [Core](https://www.npmjs.com/package/@rerune/core) · [React](https://www.npmjs.com/package/@rerune/react) · [React Native](https://www.npmjs.com/package/@rerune/react-native) · [Angular](https://www.npmjs.com/package/@rerune/angular)
 
-For checks, CI, screenshots, and shared-asset maintenance, see [Contributing](CONTRIBUTING.md). Code and the writer/blacksmith artwork retain the [MIT notice](LICENSE).
+For checks, CI, screenshots, and shared-asset maintenance, see [Contributing](CONTRIBUTING.md). Code and vector artwork use the [MIT notice](LICENSE). Instrument Sans and Lora include their SIL Open Font License notices in [the shared font directory](examples/shared/fonts/).

@@ -1,7 +1,7 @@
 import { ReRune, createReRuneAsyncStorageCacheStore } from '@rerune/react-native'
 import type { InitOptions } from 'i18next'
 
-import { resourcesByLocale } from './messages'
+import { resourcesByLocale } from '../../shared/messages'
 
 export const i18nOptions = {
   initImmediate: false,
@@ -19,7 +19,7 @@ export const i18nOptions = {
 } satisfies InitOptions
 
 const DEFAULT_OTA_PUBLISH_ID =
-  'a5def444424a9dd99de9ec31ef1460e903e42db534b44ea66678c15ec9ddf1f4'
+  '03141fc5dde6e5a1f9debf99ee68bbb125dc830412fdfb85af4834d3de341b3b'
 const otaPublishId =
   process.env.EXPO_PUBLIC_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
 

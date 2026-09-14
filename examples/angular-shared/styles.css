@@ -1,4 +1,4 @@
-/* The default experience uses the React example's stylesheet unchanged. */
+/* Optional diagnostics beneath the shared Chapter layout. */
 .demo-tools {
   width: min(calc(100% - 48px), 512px);
   margin: 0 auto 40px;

@@ -19,7 +19,8 @@
     "check:dependencies": "node scripts/check-dependencies.mjs",
     "test:browser": "playwright test --project=browser",
     "test:parity": "playwright test --project=parity",
-    "export:android": "pnpm --dir examples/react-native-expo exec expo export --platform android --output-dir dist/android"
+    "export:android": "pnpm --dir examples/react-native-expo exec expo export --platform android --output-dir dist/android && node scripts/copy-font-licenses.mjs examples/react-native-expo/dist/android",
+    "export:ios": "pnpm --dir examples/react-native-expo exec expo export --platform ios --output-dir dist/ios && node scripts/copy-font-licenses.mjs examples/react-native-expo/dist/ios"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
