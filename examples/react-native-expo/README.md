@@ -15,13 +15,13 @@ pnpm dev:expo
 
 The app uses Expo **54.0.37**, React Native **0.81.5**, React **19.1.0**, and Hermes. Open it in an Expo SDK 54-compatible client or a development build that includes AsyncStorage.
 
-Tap the current locale to open the language dropdown, then choose a language. The selected locale has a checkmark. Tap the selector again or press Android Back to dismiss the menu. Pull down on the welcome screen to refresh, or use the refresh control below the status card. Story refresh is also available.
+Tap the current locale to open the language dropdown, then choose a language. The selected locale has a checkmark. Tap the selector again or press Android Back to dismiss the menu. Pull down in the library or reader to refresh, or use the refresh control in the library, reader, or Reading settings.
 
 The background fills the screen edge-to-edge. `react-native-safe-area-context` keeps library, reader, sheets, loading, and error content clear of status bars, display cutouts, Android navigation bars, and the iOS home indicator, including in landscape. Status-bar icons are light; `expo-navigation-bar` and the Android app configuration keep three-button navigation legible on the dark background. See Expo's [safe-area guide](https://docs.expo.dev/versions/v54.0.0/sdk/safe-area-context/) and [navigation-bar API](https://docs.expo.dev/versions/v54.0.0/sdk/navigation-bar/).
 
 Restart Metro after updating dependencies. The reading UI adds `expo-font` **14.0.12** and `react-native-svg` **15.12.1** to Expo **54.0.37** / React Native **0.81.5**. Existing custom development clients require a native rebuild to include the new modules; restarting JavaScript does not apply native build settings.
 
-For a device check, open both screens in portrait and landscape on Android with gesture and three-button navigation, and on an iPhone with a notch or Dynamic Island. Confirm the top controls and final refresh/story button remain clear of system UI. Open the dropdown, select a locale directly, reopen it to check the selected mark, and dismiss it without changing the language.
+For a device check, open My library, Discover, Saved, the reader, and Reading settings in portrait and landscape on Android with gesture and three-button navigation, and on an iPhone with a notch or Dynamic Island. Confirm the top controls, bottom navigation, and reader actions remain clear of system UI. Open the dropdown, select a locale directly, reopen it to check the selected mark, and dismiss it without changing the language.
 
 Run `pnpm export:android` and `pnpm export:ios` from the root to validate both bundles. Exports do not validate a device.
 
