@@ -15,6 +15,7 @@ h1, h2, p, strong, blockquote, button { overflow-wrap: anywhere; }
 p { color: var(--muted); line-height: 1.5; }
 .icon { width: 24px; height: 24px; flex: 0 0 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .chapter-app { height: 100dvh; display: flex; flex-direction: column; }
+.staging-banner { flex: 0 0 auto; padding: 8px 16px; color: #0B1019; background: var(--accent); font-size: .8125rem; font-weight: 700; line-height: 1.4; text-align: center; }
 .app-scroll { overflow: auto; flex: 1; min-height: 0; overscroll-behavior-y: contain; }
 .page { margin: auto; padding: 12px 24px 24px; width: 100%; max-width: 1040px; }
 .library-header, .reader-header { display: flex; align-items: center; gap: 8px; min-height: 48px; }

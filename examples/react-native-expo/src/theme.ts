@@ -11,6 +11,8 @@ export const styles = StyleSheet.create({
   background: { flex: 1, backgroundColor: COLORS.background },
   safeArea: { flex: 1 },
   startupContent: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  stagingBanner: { flexShrink: 0, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: COLORS.accent },
+  stagingBannerText: { ...bold, color: COLORS.background, fontSize: 13, lineHeight: 18, textAlign: 'center' },
   scroll: { flex: 1 },
   page: { width: '100%', maxWidth: 1040, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24 },
   readerPage: { maxWidth: 720, paddingTop: 8, paddingBottom: 32 },

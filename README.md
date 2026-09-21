@@ -1,6 +1,6 @@
 # ReRune examples
 
-A standalone consumer repository for trying ReRune OTA translations in React, React Native, and Angular. Clone this repository and install its npm dependencies; no other ReRune repository is needed. Each app consumes the public **1.5.1** npm packages and preserves its translation engine's normal rendering APIs.
+A standalone consumer repository for trying ReRune OTA translations in React, React Native, and Angular. Clone this repository and install its npm dependencies; no other ReRune repository is needed. Each app consumes the public **1.6.0** npm packages and preserves its translation engine's normal rendering APIs.
 
 ## Choose an app
 
@@ -34,21 +34,21 @@ The commands above work without a `.env` file, ReRune account, project creation,
 
 After installation, the apps can display bundled copy when the OTA service is unreachable. Live updates need internet access. Each app guide describes optional overrides for your own publishable read ID; console logging defaults to `off`. Expo also needs an SDK 54-compatible client or native development build, as described in its guide.
 
-## Integration in 1.5.1
+## Integration in 1.6.0
 
 React and React Native await `ReRune.setup(otaOptions, i18nOptions)` and render one `ReRuneProvider`. Native resources and language configuration stay in i18next. Angular uses `ReRune.provide(otaOptions, nativeOptions)` to compose its root engine provider, preserving native loaders and plugins.
 
-In 1.5.1, React and React Native can create an isolated i18next instance from the supplied native options. Apps with plugins can still pass their own instance. Angular keeps its existing combined provider API. Each app guide compares **Before ReRune**, **After ReRune**, and **Removing ReRune**, using the same native configuration and translation calls.
+Since 1.5.1, React and React Native can create an isolated i18next instance from the supplied native options. Apps with plugins can still pass their own instance. Angular keeps its existing combined provider API. Each app guide compares **Before ReRune**, **After ReRune**, and **Removing ReRune**, using the same native configuration and translation calls.
 
 ## What to try
 
 ReRune includes My library, Discover with genre filters, Saved stories, and three stories with two chapters each. Finish a story or restart it. English, German, Spanish, Italian, and Portuguese are bundled; additional SDK locales appear when advertised.
 
-Reading settings contains the Main/`vip` edition switch, a fixed date interpolation example, and cardinal plurals under the logical key `plural_sample`. Refresh from the library, reader, or settings. Angular's adapter diagnostics remain available through `?tools=1`.
+Reading settings contains the Main/`vip` edition switch, an SDK staging-mode switch, a fixed date interpolation example, and cardinal plurals under the logical key `plural_sample`. Staging mode previews enabled draft translations when project staging is enabled and keeps its cache separate from published content. Refresh from the library, reader, or settings. Angular's adapter diagnostics remain available through `?tools=1`.
 
 Bookmarks, progress, filters, tabs, and scroll stay in the app session through language and live-text changes. Only SDK translation data and the edition selection are cached persistently. The date in settings is a fixed example, not a synchronization timestamp. Refresh feedback distinguishes changed, unchanged, partially updated, and failed checks; partial results name the updated locales.
 
-SDK **1.5.1** accepts hosted cardinal plurals with an omitted offset or explicit numeric `offset: 0`. The examples consume the published packages and unchanged OTA payloads.
+SDK **1.6.0** adds opt-in staging previews while retaining hosted cardinal plurals with an omitted offset or explicit numeric `offset: 0`. The examples consume the published packages and unchanged OTA payloads.
 
 ## Boundaries
 

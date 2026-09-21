@@ -1,6 +1,6 @@
 # React Native with Expo
 
-A runnable ReRune reading app using [@rerune/react-native 1.5.1](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
+A runnable ReRune reading app using [@rerune/react-native 1.6.0](https://www.npmjs.com/package/@rerune/react-native), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react-native#readme).
 
 ## Run
 
@@ -32,6 +32,7 @@ The app works with the hardcoded public demo ID and no `.env` file. The edition 
 ```dotenv
 EXPO_PUBLIC_RERUNE_OTA_PUBLISH_ID=your-publishable-ota-id
 EXPO_PUBLIC_RERUNE_VARIANT=your-variant-slug
+EXPO_PUBLIC_RERUNE_STAGING=true
 ```
 
 Restart the development server after changing environment values. Local `.env` files are ignored. These values are included in the client app and must never contain secrets.
@@ -40,9 +41,9 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-The checkout already installs `@rerune/react-native@1.5.1`. In an existing native app, install `@rerune/react-native@1.5.1` with your package manager and retain its native engine dependencies.
+The checkout already installs `@rerune/react-native@1.6.0`. In an existing native app, install `@rerune/react-native@1.6.0` with your package manager and retain its native engine dependencies.
 
-SDK 1.5.1 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react-native#readme); **Before ReRune** uses native i18next without the SDK.
+SDK 1.6.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react-native#readme); **Before ReRune** uses native i18next without the SDK.
 
 ### Native options
 
@@ -64,7 +65,7 @@ const i18nOptions = {
 } satisfies InitOptions
 ```
 
-Place imports at module scope and awaited initialization in the existing startup flow. `otaPublishId` below is the existing publishable ID from the configuration above. `Welcome` is the native translation component shown below; keep your application's existing screens and mount timing.
+Place imports at module scope and awaited initialization in the existing startup flow. `otaPublishId` below is the existing publishable ID from the configuration above. `staging` is the optional boolean derived from `EXPO_PUBLIC_RERUNE_STAGING`; it defaults to false. `Welcome` is the native translation component shown below; keep your application's existing screens and mount timing.
 
 ### Before ReRune
 
@@ -97,6 +98,7 @@ import { ReRune, createReRuneAsyncStorageCacheStore } from '@rerune/react-native
 
 const client = await ReRune.setup({
   otaPublishId,
+  staging,
   logLevel: 'off',
   cacheStore: createReRuneAsyncStorageCacheStore({ prefix: 'rerune-rn-example' }),
   updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
@@ -131,6 +133,8 @@ function Welcome() {
 
 Language switching still uses `i18n.changeLanguage(locale)` on the instance from `useTranslation()`. Non-component consumers obtain that same instance from `client.i18n` after setup resolves. There is no separate global singleton. OTA targets the `translation` namespace; later native resource writes remain beneath OTA overrides, and removing an override restores the latest application value.
 
+The settings switch calls `client.setStaging(boolean)`. Production and staging snapshots are cached separately, and `client.isStaging()` reports the active mode. The mode itself is selected again from configuration on application startup.
+
 ### Removing ReRune
 
 Restore both **Before ReRune** blocks with the same options and resource files. Replace any non-component `client.i18n` use with the restored native instance. Remove ReRune-only refresh, status, and variant controls and their imports, then run from the repository root:
@@ -149,13 +153,13 @@ If your app owns `.use(...)` plugins or depends on a global instance, keep that 
 
 1. Explore My library, Discover's genre filters, and the empty Saved shelf. Bookmark stories, read both chapters of each story, finish, and restart.
 2. Switch between English, German, Spanish, Italian, and Portuguese while reading. Additional SDK locales appear alongside bundled languages. Chapter progress, bookmarks, filters, tabs, and scroll remain in this session.
-3. Open Reading settings for the Main/`vip` edition switch, the fixed `14.07.2026` interpolation sample, and the `plural_sample` cardinal plural. Refresh from the library, reader, or settings.
+3. Open Reading settings for the Main/`vip` edition switch, staging-mode switch, fixed `14.07.2026` interpolation sample, and `plural_sample` cardinal plural. Turn staging on to preview enabled drafts and off to restore published content. A banner stays visible while staging is active. Refresh from the library, reader, or settings.
 4. Configure your own publishable OTA ID. Publish a root translation or a distinct `vip` value, then refresh. Edition choice and SDK translation caches persist across reloads; reading state does not.
 5. Block the OTA service or one locale request and refresh again. Partial results identify updated languages; failures retain existing text. Repeated taps start one check at a time.
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.
 
-This example pins the released SDK **1.5.1**, including support for hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
+This example pins the released SDK **1.6.0**, including isolated production and staging caches and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
 
 ## Runtime boundaries
 

@@ -4,7 +4,7 @@ import { of, delay } from 'rxjs'
 import { TranslateLoader, TranslatePipe, TranslateService, TranslateCompiler } from '@ngx-translate/core'
 import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler'
 import { ReRune, ReRuneService } from '@rerune/angular/ngx-translate'
-import { messages, publishId } from '../../angular-shared/messages'
+import { messages, publishId, staging } from '../../angular-shared/messages'
 import { ChapterPage } from '../../angular-shared/presentation'
 import { ChapterIcon, ChapterCover } from '../../angular-shared/artwork'
 
@@ -35,6 +35,7 @@ export const appConfig = {
   providers: [
     ReRune.provide({
       otaPublishId: publishId,
+      staging,
       supportedLocales: Object.keys(messages),
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },

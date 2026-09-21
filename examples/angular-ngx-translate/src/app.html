@@ -1,4 +1,5 @@
 <div class="chapter-app">
+  @if (stagingActive()) { <p class="staging-banner" role="status">{{ 'staging_mode_active' | translate }}</p> }
   <main #scroll class="app-scroll" (scroll)="rememberScroll($event)">
     <div class="page" [class.reader-page]="reader()" [class.library-page]="!reader()">
       <header [class.reader-header]="reader()" [class.library-header]="!reader()">
@@ -90,6 +91,11 @@
         <span>{{ 'translation_variant' | translate }}<small>{{ rerune.state().variant }}</small></span><span class="switch-track"></span>
       </button>
       @if (variantError()) { <p role="alert">{{ 'variant_save_error' | translate }}</p> }
+      @if (stagingActive()) { <p class="session-note">{{ 'staging_mode_active' | translate }}</p> }
+      <button type="button" class="edition-switch" role="switch" [attr.aria-checked]="stagingActive()" [attr.aria-label]="'staging_mode' | translate" [disabled]="switchingStaging()" (click)="toggleStaging()">
+        <span>{{ 'staging_mode' | translate }}<small>{{ (stagingActive() ? 'staging_mode_on' : 'staging_mode_off') | translate }}</small></span><span class="switch-track"></span>
+      </button>
+      @if (stagingError()) { <p role="alert">{{ 'staging_change_error' | translate }}</p> }
       <div class="samples"><p>{{ 'publish_date' | translate: { publish_date: date } }}</p><p>{{ 'plural_sample' | translate: { count: 1 } }}<br>{{ 'plural_sample' | translate: { count: 2 } }}</p></div>
       <ng-container *ngTemplateOutlet="refreshControl" /><p role="status" class="feedback">{{ feedback() ? refreshText(feedback()!, locale(), updatedLocales()) : '' }}</p><p class="session-note">{{ 'session_note' | translate }}</p>
     </div>

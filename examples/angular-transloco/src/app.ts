@@ -4,7 +4,7 @@ import { of, delay } from 'rxjs'
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco'
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat'
 import { ReRune, ReRuneService } from '@rerune/angular/transloco'
-import { messages, publishId } from '../../angular-shared/messages'
+import { messages, publishId, staging } from '../../angular-shared/messages'
 import { ChapterPage } from '../../angular-shared/presentation'
 import { ChapterIcon, ChapterCover } from '../../angular-shared/artwork'
 
@@ -35,6 +35,7 @@ export const appConfig = {
   providers: [
     ReRune.provide({
       otaPublishId: publishId,
+      staging,
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
     }, {

@@ -35,7 +35,7 @@ The TypeScript suites live in `tests/browser/`. Playwright starts and stops Vite
 
 Use `pnpm exec playwright test --project=browser --grep "ngx"` for a focused run. The root `pnpm typecheck` also checks the tests and runner configuration.
 
-The browser suite uses the installed SDK and native translation engines. Request interception supplies deterministic manifests and locale records. It covers bundled startup, OTA rendering, locale changes, Main/vip persistence, interpolation, cardinal plurals, failed-request cache restoration, partial updates, unchanged content with a failed locale, reading-state retention, duplicate refresh guards, and the fixed interpolation date. Angular-specific checks include native MessageFormat, late application writes, and restoring bundled copy after OTA removal.
+The browser suite uses the installed SDK and native translation engines. Request interception supplies deterministic manifests and locale records. It covers bundled startup, OTA rendering, locale changes, Main/vip persistence, staging request parameters and mode switches, interpolation, cardinal plurals, failed-request cache restoration, partial updates, unchanged content with a failed locale, reading-state retention, duplicate refresh guards, and the fixed interpolation date. Angular-specific checks include native MessageFormat, late application writes, and restoring bundled copy after OTA removal.
 
 The parity suite blocks hosted requests and compares React with both Angular adapters on English/German library, Discover, Saved, settings, both chapters, and completion screens. It checks rendered text, selected styles, and geometry within one CSS pixel at 1440x1050 and 390x844. The interaction suite additionally checks 320px widths, 150% German text, all five bundled languages, direct reader links, and scroll retention. Review screenshots as well. These checks do not prove native, Safari, or Firefox behavior.
 
@@ -47,7 +47,7 @@ Keep asynchronous `ReRune.setup(otaOptions, i18nOptions)` and one `ReRuneProvide
 
 Angular's native build cache is disabled in both apps. CI-mode production builds were verified. Cache-enabled LMDB operation remains unverified. The existing MessageFormat CommonJS and Angular/Vite development-tool peer warnings do not establish a runtime failure.
 
-The explicit-zero-offset consumer test is required with the published SDK 1.5.1. Browser OTA fixtures also use numeric `offset: 0` to verify React and both Angular adapters. Keep every direct SDK pin aligned and regenerate the lockfile together when upgrading; repeat dependency integrity, browser, parity, and native export checks.
+The published-package consumer tests cover numeric `offset: 0` and staging-mode request and cache isolation. Browser OTA fixtures verify both behaviors in React and both Angular adapters. Keep every direct SDK pin aligned and regenerate the lockfile together when upgrading; repeat dependency integrity, browser, parity, and native export checks.
 
 ## Standalone consumer verification
 

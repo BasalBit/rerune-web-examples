@@ -13,6 +13,8 @@ export abstract class ChapterPage implements AfterViewChecked {
     state: Signal<ReRuneState>
     checkForUpdates(): Promise<ReRuneUpdateResult>
     setVariant(value: string | ReRuneSetVariantOptions): Promise<void>
+    setStaging(staging: boolean): Promise<void>
+    isStaging(): boolean
   }
   abstract locale(): string
   abstract setLocale(locale: string): void
@@ -38,6 +40,8 @@ export abstract class ChapterPage implements AfterViewChecked {
   readonly refreshText = refreshText
   readonly savingVariant = signal(false)
   readonly variantError = signal(false)
+  readonly requestedStaging = signal<boolean | null>(null)
+  readonly stagingError = signal(false)
   readonly systemLocale = signal(false)
   readonly availableLocales = computed(() => [...new Set([...Object.keys(messages), ...this.rerune.state().availableLocales])])
   readonly nativeNames: Record<string, string> = { en: 'English', de: 'Deutsch', es: 'Español', it: 'Italiano', pt: 'Português' }
@@ -129,6 +133,17 @@ export abstract class ChapterPage implements AfterViewChecked {
     } catch { this.variantError.set(true) }
     finally { this.savingVariant.set(false) }
   }
+  async toggleStaging() {
+    if (this.requestedStaging() !== null) return
+    const staging = !this.stagingActive()
+    this.requestedStaging.set(staging)
+    this.stagingError.set(false)
+    try { await this.rerune.setStaging(staging) }
+    catch { this.stagingError.set(true) }
+    finally { this.requestedStaging.set(null) }
+  }
+  stagingActive() { return this.requestedStaging() ?? this.rerune.isStaging() }
+  switchingStaging() { return this.requestedStaging() !== null }
   dismissSheet(event: MouseEvent, sheet: HTMLDialogElement) { if (event.target === sheet) sheet.close() }
   changeCount(delta: number) { this.count.update(value => Math.max(0, value + delta)) }
   changeProject(value: string) {

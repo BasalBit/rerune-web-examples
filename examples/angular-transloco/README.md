@@ -1,6 +1,6 @@
 # Angular with Transloco
 
-A runnable ReRune reading app using [@rerune/angular 1.5.1](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable ReRune reading app using [@rerune/angular 1.6.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -19,15 +19,15 @@ This app pins Angular **18.2.14**, TypeScript **5.5.4**, and Transloco 8.4.0 and
 
 ## Use your own project (optional)
 
-The app works with the hardcoded public demo ID and no configuration. To use your own project, use [the project field](http://127.0.0.1:4202/?tools=1) under **Connect your own ReRune project**, or open `http://127.0.0.1:4202/?publishId=YOUR_PUBLISHABLE_ID`. Add `&tools=1` for engine diagnostics, a plural counter, and late application-translation checks. The variant switch compares Main and `vip`.
+The app works with the hardcoded public demo ID and no configuration. To use your own project, use [the project field](http://127.0.0.1:4202/?tools=1) under **Connect your own ReRune project**, or open `http://127.0.0.1:4202/?publishId=YOUR_PUBLISHABLE_ID`. Add `&tools=1` for engine diagnostics, a plural counter, and late application-translation checks. Add `&staging=true` to start with staging mode enabled, or use the switch in Reading settings. The variant switch compares Main and `vip`.
 
 Console logging is `off`. A publishable read ID is sufficient; no administration credential is used.
 
 ## Integration
 
-The checkout already installs `@rerune/angular@1.5.1`. In an existing native app, install `@rerune/angular@1.5.1` with your package manager and retain its native engine dependencies.
+The checkout already installs `@rerune/angular@1.6.0`. In an existing native app, install `@rerune/angular@1.6.0` with your package manager and retain its native engine dependencies.
 
-SDK 1.5.1 keeps the same combined Angular provider API. Adoption replaces one native root provider in [src/app.ts](src/app.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
+SDK 1.6.0 keeps the same combined Angular provider API and adds staging configuration. Adoption replaces one native root provider in [src/app.ts](src/app.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
 
 The snippets show the root provider comparison; in this checkout the provider list is exported as `appConfig` from `src/app.ts`, and `src/main.ts` bootstraps it. Both alternatives keep the existing `App`, `DemoLoader`, `messages`, and publishable `publishId` from this app. Keep the loader in place; it returns bundled messages using `of(messages[lang] ?? {}).pipe(delay(200))`. Do not move translations or add another bootstrap helper.
 
@@ -60,6 +60,7 @@ bootstrapApplication(App, {
   providers: [
     ReRune.provide({
       otaPublishId: publishId,
+      staging,
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
     }, {
@@ -74,6 +75,8 @@ bootstrapApplication(App, {
 Replace the native provider import and call with `ReRune.provide(...)`. Register exactly one combined provider at the root; do not retain a separate `provideTransloco(...)` registration. Its native configuration moves unchanged into the second argument, including loader, fallback, and compiler/plugin behavior. Preserve other root providers and startup error handling.
 
 Transloco exposes languages through its native `availableLangs`; no extra ReRune locale list is needed. Keep `provideTranslocoMessageformat()` after the combined provider, in the same order as before adoption.
+
+The optional `staging` boolean comes from `?staging=true` in this example and defaults to false. The settings switch calls `ReRuneService.setStaging(boolean)`. Production and staging snapshots are cached separately, and `ReRuneService.isStaging()` reports the active mode.
 
 ### Native translation calls
 
@@ -97,13 +100,13 @@ If the native root engine is already registered elsewhere, attach ReRune by omit
 
 1. Explore My library, Discover's genre filters, and the empty Saved shelf. Bookmark stories, read both chapters of each story, finish, and restart.
 2. Switch between English, German, Spanish, Italian, and Portuguese while reading. Additional SDK locales appear alongside bundled languages. Chapter progress, bookmarks, filters, tabs, and scroll remain in this session.
-3. Open Reading settings for the Main/`vip` edition switch, the fixed `14.07.2026` interpolation sample, and the `plural_sample` cardinal plural. Refresh from the library, reader, or settings.
+3. Open Reading settings for the Main/`vip` edition switch, staging-mode switch, fixed `14.07.2026` interpolation sample, and `plural_sample` cardinal plural. Turn staging on to preview enabled drafts and off to restore published content. A banner stays visible while staging is active. Refresh from the library, reader, or settings.
 4. Configure your own publishable OTA ID. Publish a root translation or a distinct `vip` value, then refresh. Edition choice and SDK translation caches persist across reloads; reading state does not.
 5. Block the OTA service or one locale request and refresh again. Partial results identify updated languages; failures retain existing text. Repeated taps start one check at a time.
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.
 
-This example pins the released SDK **1.5.1**, including support for hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
+This example pins the released SDK **1.6.0**, including isolated production and staging caches and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
 
 ## Runtime boundaries
 

@@ -66,6 +66,9 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
   const inFlight = useRef(false)
   const [savingVariant, setSavingVariant] = useState(false)
   const [variantError, setVariantError] = useState(false)
+  const [requestedStaging, setRequestedStaging] = useState<boolean | null>(null)
+  const [stagingError, setStagingError] = useState(false)
+  const stagingInFlight = useRef(false)
   const dialog = useRef<HTMLDialogElement>(null)
   const scroll = useRef<HTMLElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -78,6 +81,8 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
   const chapter = story.chapters[completed === 0 ? 0 : 1]
   const finished = completed === story.chapters.length
   const view = reader ? `reader-${reader}-${completed}` : book.tab
+  const stagingActive = requestedStaging ?? client.isStaging()
+  const switchingStaging = requestedStaging !== null
 
   useEffect(() => {
     const update = () => {
@@ -132,6 +137,16 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
     } catch { setVariantError(true) }
     finally { setSavingVariant(false) }
   }
+  async function toggleStaging() {
+    if (stagingInFlight.current) return
+    stagingInFlight.current = true
+    const staging = !stagingActive
+    setRequestedStaging(staging)
+    setStagingError(false)
+    try { await client.setStaging(staging) }
+    catch { setStagingError(true) }
+    finally { stagingInFlight.current = false; setRequestedStaging(null) }
+  }
   const feedbackText = feedback && refreshText(feedback, i18n.language, updatedLocales)
   const refreshControl = <div className="refresh-area">
     <button type="button" className="outline-button" disabled={refreshing} onClick={() => void refresh()}>
@@ -163,6 +178,7 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
   }
 
   return <div className="chapter-app">
+    {stagingActive && <p className="staging-banner" role="status">{t('staging_mode_active')}</p>}
     <main ref={scroll} className="app-scroll" onScroll={event => { scrollPositions.current[view] = event.currentTarget.scrollTop }}>
       <div className={reader ? 'page reader-page' : 'page library-page'}>
         <header className={reader ? 'reader-header' : 'library-header'}>
@@ -224,6 +240,10 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
         <button type="button" className="edition-switch" role="switch" aria-checked={sdk.variant !== ReRune.Main} aria-label={t('translation_variant')}
           disabled={savingVariant} onClick={() => void toggleVariant()}><span>{t('translation_variant')}<small>{sdk.variant}</small></span><span className="switch-track" /></button>
         {variantError && <p role="alert">{t('variant_save_error')}</p>}
+        {stagingActive && <p className="session-note">{t('staging_mode_active')}</p>}
+        <button type="button" className="edition-switch" role="switch" aria-checked={stagingActive} aria-label={t('staging_mode')}
+          disabled={switchingStaging} onClick={() => void toggleStaging()}><span>{t('staging_mode')}<small>{t(stagingActive ? 'staging_mode_on' : 'staging_mode_off')}</small></span><span className="switch-track" /></button>
+        {stagingError && <p role="alert">{t('staging_change_error')}</p>}
         <div className="samples"><p>{t('publish_date', { publish_date: '14.07.2026' })}</p><p>{t('plural_sample', { count: 1 })}<br />{t('plural_sample', { count: 2 })}</p></div>
         {refreshControl}<p role="status" className="feedback">{feedbackText}</p><p className="session-note">{t('session_note')}</p>
       </div>

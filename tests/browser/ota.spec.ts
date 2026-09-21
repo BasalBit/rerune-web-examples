@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test'
 
 const publishId = '03141fc5dde6e5a1f9debf99ee68bbb125dc830412fdfb85af4834d3de341b3b'
-function records(locale: string, version: number) {
+function records(locale: string, version: number, staging = false) {
+  const main = staging ? `Draft ${locale} ${version}` : `Live ${locale} ${version}`
+  const vip = staging ? `Draft VIP ${locale} ${version}` : `VIP ${locale} ${version}`
   return [
-    ...['welcome_title', 'atlas_chapter_two'].map(key => ({ key, values: [{ lang: locale, value: `Live ${locale} ${version}`,
-      variations: [{ variation: 'vip', value: `VIP ${locale} ${version}` }] }] })),
+    ...['welcome_title', 'atlas_chapter_two'].map(key => ({ key, values: [{ lang: locale, value: main,
+      variations: [{ variation: 'vip', value: vip }] }] })),
     { key: 'publish_date', placeholders: [{ name: 'publish_date', type: 'string' }],
       values: [{ lang: locale, value: 'Published {{publish_date}}' }] },
     { key: 'plural_sample', placeholders: [{ name: 'count', type: 'int' }],
@@ -23,14 +25,21 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await page.setViewportSize(viewport)
       const remote = { online: false, versions: { en: 1, de: 1, fr: 1 } as Record<string, number>, failed: new Set<string>(), delay: 0 }
       const requests = new Set<string>()
+      const stagingEndpoints = new Set<string>()
       let manifests = 0
       const errors: string[] = []
       page.on('pageerror', error => errors.push(String(error)))
       await context.route(/^https:\/\/(rerune\.io|rerune-fixture\.invalid)\//, async route => {
         const request = route.request()
+        const requestUrl = new URL(request.url())
+        const staging = requestUrl.searchParams.get('staging') === 'true'
         const headers = request.headers()
         expect(headers['x-ota-publish-id']).toBe(publishId)
         for (const key of ['project_id', 'projectid', 'x-project-id']) expect(headers).not.toHaveProperty(key)
+        if (requestUrl.searchParams.has('staging')) {
+          expect(requestUrl.searchParams.getAll('staging')).toEqual(['true'])
+          stagingEndpoints.add(requestUrl.pathname)
+        }
         if (request.url().includes('manifest')) manifests++
         if (!remote.online) return route.abort()
         if (remote.delay) await new Promise(resolve => setTimeout(resolve, remote.delay))
@@ -38,16 +47,21 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
           return route.fulfill({ json: {
             version: Math.max(...Object.values(remote.versions)), main_language: 'en',
             locales: Object.fromEntries(Object.entries(remote.versions).map(([locale, version]) => [locale, {
-              version, minimum_delta_base_version: version, url: `https://rerune-fixture.invalid/${locale}.json`,
+              version, minimum_delta_base_version: version,
+              url: `https://rerune-fixture.invalid/${locale}.json${staging ? '?staging=true' : ''}`,
             }])),
           } })
         }
-        const locale = new URL(request.url()).pathname.slice(1).replace('.json', '')
+        if (staging) {
+          expect(requestUrl.searchParams.has('version')).toBe(false)
+          expect(requestUrl.searchParams.has('target_version')).toBe(false)
+        }
+        const locale = requestUrl.pathname.slice(1).replace('.json', '')
         requests.add(locale)
         if (remote.failed.has(locale)) return route.abort()
         const version = remote.versions[locale]
         if (version === undefined) throw new Error(`Unexpected locale: ${locale}`)
-        await route.fulfill({ json: records(locale, version) })
+        await route.fulfill({ json: records(locale, version, staging) })
       })
       await page.goto(`http://127.0.0.1:${port}/`)
       await page.waitForLoadState('networkidle')
@@ -82,8 +96,16 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await page.getByRole('button', { name: 'Back to library', exact: true }).click()
       await settings.click()
       await expect(sheet.locator('.samples')).toHaveText('Published 14.07.2026One published key2 published keys')
-      await sheet.getByRole('switch').click()
-      await expect(sheet.getByRole('switch')).toBeChecked()
+      await sheet.getByRole('switch', { name: 'VIP edition' }).click()
+      await expect(sheet.getByRole('switch', { name: 'VIP edition' })).toBeChecked()
+      await sheet.getByRole('switch', { name: 'Staging mode' }).click()
+      await expect(page.locator('.staging-banner')).toBeVisible()
+      await close()
+      await expect(title).toHaveText('Draft VIP en 1')
+      expect([...stagingEndpoints].sort()).toEqual(['/api/sdk/translations/manifest', '/de.json', '/en.json', '/fr.json'])
+      await settings.click()
+      await sheet.getByRole('switch', { name: 'Staging mode' }).click()
+      await expect(page.locator('.staging-banner')).toHaveCount(0)
       await close()
       await expect(title).toHaveText('VIP en 1')
       await page.getByRole('button', { name: 'Continue reading', exact: true }).click()
@@ -107,8 +129,8 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await expect(page.locator('progress')).toHaveAttribute('value', '0')
       await expect(page.getByTestId('bookmark-atlas')).toHaveAttribute('aria-pressed', 'false')
       await settings.click()
-      await expect(sheet.getByRole('switch')).toBeChecked()
-      await sheet.getByRole('switch').click()
+      await expect(sheet.getByRole('switch', { name: 'VIP edition' })).toBeChecked()
+      await sheet.getByRole('switch', { name: 'VIP edition' }).click()
       await close()
       await expect(title).toHaveText('Live en 1')
       remote.online = true

@@ -137,3 +137,72 @@ test('published SDK accepts hosted cardinal plurals with explicit numeric offset
     assert.equal(client.i18n.t('plural_sample', { count: 2 }), '2 published keys')
   } finally { client.dispose() }
 })
+
+test('published SDK switches between isolated staging and production snapshots', async () => {
+  const requests = []
+  const fetch = async (input, init = {}) => {
+    const url = new URL(String(input))
+    const headers = new Headers(init.headers)
+    const staging = url.searchParams.get('staging') === 'true'
+    requests.push({ url, headers })
+
+    if (url.pathname.endsWith('/manifest')) {
+      return Response.json({
+        version: 1,
+        main_language: 'en',
+        locales: {
+          en: {
+            version: 1,
+            minimum_delta_base_version: 1,
+            url: `https://fixture.invalid/en.json${staging ? '?staging=true' : ''}`,
+          },
+        },
+      }, { headers: { ETag: staging ? '"staging-manifest"' : '"production-manifest"' } })
+    }
+
+    if (staging && headers.get('if-none-match') === '"staging-en"') {
+      return new Response(null, { status: 304, headers: { ETag: '"staging-en"' } })
+    }
+
+    return Response.json([
+      { key: 'welcome_title', values: [{ lang: 'en', value: staging ? 'Draft' : 'Published' }] },
+    ], { headers: { ETag: staging ? '"staging-en"' : '"production-en"' } })
+  }
+
+  const client = await ReRune.setup({
+    otaPublishId: 'staging-consumer-test',
+    staging: true,
+    logLevel: 'off',
+    updatePolicy: { checkOnStart: false },
+    cacheStore: createReRuneBrowserCacheStore({ storage: storageFixture(), prefix: 'staging-consumer' }),
+    fetch,
+  }, { lng: 'en', fallbackLng: 'en', resources: { en: { translation: { welcome_title: 'Bundled' } } } })
+
+  try {
+    await client.initialize()
+    await client.checkForUpdates()
+    assert.equal(client.isStaging(), true)
+    assert.equal(client.i18n.t('welcome_title'), 'Draft')
+
+    const firstStagingRequests = requests.filter(({ url }) => url.searchParams.get('staging') === 'true')
+    assert.equal(firstStagingRequests.length, 2)
+    for (const { url } of firstStagingRequests) {
+      assert.deepEqual(url.searchParams.getAll('staging'), ['true'])
+    }
+    const firstStagingLocale = firstStagingRequests.find(({ url }) => url.hostname === 'fixture.invalid')
+    assert(firstStagingLocale)
+    assert.equal(firstStagingLocale.url.searchParams.has('version'), false)
+    assert.equal(firstStagingLocale.url.searchParams.has('target_version'), false)
+
+    await client.setStaging(false)
+    assert.equal(client.isStaging(), false)
+    assert.equal(client.i18n.t('welcome_title'), 'Published')
+
+    await client.setStaging(true)
+    assert.equal(client.isStaging(), true)
+    assert.equal(client.i18n.t('welcome_title'), 'Draft')
+    const stagingLocaleRequests = requests.filter(({ url }) =>
+      url.hostname === 'fixture.invalid' && url.searchParams.get('staging') === 'true')
+    assert.equal(stagingLocaleRequests.at(-1)?.headers.get('if-none-match'), '"staging-en"')
+  } finally { client.dispose() }
+})

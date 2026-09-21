@@ -25,3 +25,5 @@ export const messages: Record<string, Record<string, string>> = Object.fromEntri
 export const defaultPublishId = '03141fc5dde6e5a1f9debf99ee68bbb125dc830412fdfb85af4834d3de341b3b'
 export const publishId = typeof window === 'undefined' ? defaultPublishId
   : new URLSearchParams(window.location.search).get('publishId')?.trim() || defaultPublishId
+export const staging = typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).get('staging') === 'true'

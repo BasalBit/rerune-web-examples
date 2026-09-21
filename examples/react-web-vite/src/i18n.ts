@@ -22,9 +22,12 @@ const DEFAULT_OTA_PUBLISH_ID =
   '03141fc5dde6e5a1f9debf99ee68bbb125dc830412fdfb85af4834d3de341b3b'
 const otaPublishId =
   import.meta.env.VITE_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
+const staging = import.meta.env.VITE_RERUNE_STAGING === 'true'
+  || new URLSearchParams(window.location.search).get('staging') === 'true'
 
 export const clientReady = ReRune.setup({
   otaPublishId,
+  staging,
   logLevel: 'off',
   cacheStore: createReRuneBrowserCacheStore({ prefix: 'rerune-web-example' }),
   updatePolicy: {

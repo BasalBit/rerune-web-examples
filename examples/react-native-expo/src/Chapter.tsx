@@ -23,9 +23,12 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
   const [feedback, setFeedback] = useState<RefreshPhase | null>(null)
   const [savingVariant, setSavingVariant] = useState(false)
   const [variantError, setVariantError] = useState(false)
+  const [requestedStaging, setRequestedStaging] = useState<boolean | null>(null)
+  const [stagingError, setStagingError] = useState(false)
   const [updatedLocales, setUpdatedLocales] = useState<readonly string[]>([])
   const inFlight = useRef(false)
   const variantInFlight = useRef(false)
+  const stagingInFlight = useRef(false)
   const scroll = useRef<ScrollView>(null)
   const positions = useRef<Record<string, number>>({})
   const currentId = reader ?? book.current
@@ -34,6 +37,8 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
   const finished = completed === story.chapters.length
   const chapter = story.chapters[completed === 0 ? 0 : 1]
   const view = reader ? `reader-${reader}-${completed}` : book.tab
+  const stagingActive = requestedStaging ?? client.isStaging()
+  const switchingStaging = requestedStaging !== null
 
   useLayoutEffect(() => { scroll.current?.scrollTo({ y: positions.current[view] ?? 0, animated: false }) }, [view])
   useEffect(() => {
@@ -80,6 +85,15 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
     } catch { setVariantError(true) }
     finally { variantInFlight.current = false; setSavingVariant(false) }
   }
+  async function toggleStaging(staging: boolean) {
+    if (stagingInFlight.current) return
+    stagingInFlight.current = true
+    setRequestedStaging(staging)
+    setStagingError(false)
+    try { await client.setStaging(staging) }
+    catch { setStagingError(true) }
+    finally { stagingInFlight.current = false; setRequestedStaging(null) }
+  }
   const refreshControl = <Pressable accessibilityRole="button" disabled={refreshing} accessibilityState={{ disabled: refreshing, busy: refreshing }}
     onPress={() => void refresh()} style={({ pressed }) => [styles.outlineButton, refreshing && styles.disabled, pressed && styles.pressed]}>
     <Icon name="refresh" size={18} /><Text style={styles.outlineLabel}>{t(refreshing ? 'welcome_refresh_state_checking' : 'story_refresh_cta')}</Text>
@@ -118,6 +132,7 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
   }
 
   return <View style={styles.safeArea} onAccessibilityEscape={() => { if (reader) setReader(null) }}>
+    {stagingActive && <View style={styles.stagingBanner}><Text accessibilityLiveRegion="polite" style={styles.stagingBannerText}>{t('staging_mode_active')}</Text></View>}
     <ScrollView ref={scroll} style={styles.scroll} contentInsetAdjustmentBehavior="never" scrollEventThrottle={16}
       onScroll={event => { positions.current[view] = event.nativeEvent.contentOffset.y }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={COLORS.accent} colors={[COLORS.accent]} progressBackgroundColor={COLORS.surface} />}>
@@ -182,6 +197,10 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
             <View style={styles.edition}><View style={styles.editionCopy}><Text style={styles.strong}>{t('translation_variant')}</Text><Text style={styles.small}>{sdk.variant}</Text></View>
               <Switch accessibilityLabel={t('translation_variant')} disabled={savingVariant} value={sdk.variant !== ReRune.Main} onValueChange={() => void toggleVariant()} trackColor={{ false: COLORS.border, true: COLORS.accent }} thumbColor={COLORS.text} />
             </View>{variantError && <Text accessibilityRole="alert" style={styles.copy}>{t('variant_save_error')}</Text>}
+            {stagingActive && <Text style={styles.small}>{t('staging_mode_active')}</Text>}
+            <View style={styles.edition}><View style={styles.editionCopy}><Text style={styles.strong}>{t('staging_mode')}</Text><Text style={styles.small}>{t(stagingActive ? 'staging_mode_on' : 'staging_mode_off')}</Text></View>
+              <Switch accessibilityLabel={t('staging_mode')} disabled={switchingStaging} value={stagingActive} onValueChange={value => void toggleStaging(value)} trackColor={{ false: COLORS.border, true: COLORS.accent }} thumbColor={COLORS.text} />
+            </View>{stagingError && <Text accessibilityRole="alert" style={styles.copy}>{t('staging_change_error')}</Text>}
             <View style={styles.samples}><Text style={styles.copy}>{t('publish_date', { publish_date: '14.07.2026' })}</Text><Text style={styles.copy}>{t('plural_sample', { count: 1 })}{'\n'}{t('plural_sample', { count: 2 })}</Text></View>
             {refreshControl}{feedbackText}<Text style={styles.small}>{t('session_note')}</Text>
           </ScrollView>
