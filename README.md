@@ -13,7 +13,7 @@ A standalone consumer repository for trying ReRune OTA translations in React, Re
 
 ## Start
 
-Prerequisites: Node **24.19.0 or newer** and pnpm **10.8.1**. The pinned versions are recorded in `.node-version` and `package.json`.
+Prerequisites: Node **24.22.1 or newer** and pnpm **10.8.1**. The pinned versions are recorded in `.node-version` and `package.json`.
 
 ```bash
 git clone https://github.com/BasalBit/rerune-web-examples.git

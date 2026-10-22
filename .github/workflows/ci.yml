@@ -22,7 +22,7 @@ jobs:
       - run: mkdir -p .artifacts/tmp
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.19.0'
+          node-version: '24.22.1'
       - uses: pnpm/action-setup@v4
         with:
           version: '10.8.1'

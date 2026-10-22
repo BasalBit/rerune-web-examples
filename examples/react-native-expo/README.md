@@ -4,7 +4,7 @@ A runnable ReRune reading app using [@rerune/react-native 1.6.0](https://www.npm
 
 ## Run
 
-Use Node 24.19.0 or newer and pnpm 10.8.1. From a terminal:
+Use Node 24.22.1 or newer and pnpm 10.8.1. From a terminal:
 
 ```bash
 git clone https://github.com/BasalBit/rerune-web-examples.git
