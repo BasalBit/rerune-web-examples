@@ -1,6 +1,6 @@
 # Angular with ngx-translate
 
-A runnable ReRune reading app using [@rerune/angular 1.6.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
+A runnable ReRune reading app using [@rerune/angular 1.8.0](https://www.npmjs.com/package/@rerune/angular), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/angular#readme).
 
 ## Run
 
@@ -25,9 +25,9 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-The checkout already installs `@rerune/angular@1.6.0`. In an existing native app, install `@rerune/angular@1.6.0` with your package manager and retain its native engine dependencies.
+The checkout already installs `@rerune/angular@1.8.0`. In an existing native app, install `@rerune/angular@1.8.0` with your package manager and retain its native engine dependencies.
 
-SDK 1.6.0 keeps the same combined Angular provider API and adds staging configuration. Adoption replaces one native root provider in [src/app.ts](src/app.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
+SDK 1.8.0 keeps the same combined Angular provider API, including staging configuration. Adoption replaces one native root provider in [src/app.ts](src/app.ts). The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/angular#readme); **Before ReRune** uses the native engine without the SDK.
 
 The snippets show the root provider comparison; in this checkout the provider list is exported as `appConfig` from `src/app.ts`, and `src/main.ts` bootstraps it. Both alternatives keep the existing `App`, `DemoLoader`, `messages`, and publishable `publishId` from this app. Keep the loader in place; it returns bundled messages using `of(messages[lang] ?? {}).pipe(delay(200))`. Do not move translations or add another bootstrap helper.
 
@@ -108,7 +108,7 @@ If the native root engine is already registered elsewhere, attach ReRune by omit
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.
 
-This example pins the released SDK **1.6.0**, including isolated production and staging caches and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
+This example pins the released SDK **1.8.0**, including CDN delivery from `cdn.rerune.io`, remote value compatibility checks against the shipped copy, isolated production and staging caches, and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
 
 ## Runtime boundaries
 

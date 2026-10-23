@@ -1,6 +1,6 @@
 # React web with i18next
 
-A runnable ReRune reading app using [@rerune/react 1.6.0](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
+A runnable ReRune reading app using [@rerune/react 1.8.0](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
 
 ## Run
 
@@ -31,9 +31,9 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-The checkout already installs `@rerune/react@1.6.0`. In an existing native app, install `@rerune/react@1.6.0` with your package manager and retain its native engine dependencies.
+The checkout already installs `@rerune/react@1.8.0`. In an existing native app, install `@rerune/react@1.8.0` with your package manager and retain its native engine dependencies.
 
-SDK 1.6.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react#readme); **Before ReRune** uses native i18next without the SDK.
+SDK 1.8.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react#readme); **Before ReRune** uses native i18next without the SDK.
 
 ### Native options
 
@@ -148,7 +148,7 @@ If your app owns `.use(...)` plugins or depends on a global instance, keep that 
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.
 
-This example pins the released SDK **1.6.0**, including isolated production and staging caches and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
+This example pins the released SDK **1.8.0**, including CDN delivery from `cdn.rerune.io`, remote value compatibility checks against the shipped copy, isolated production and staging caches, and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
 
 ## Runtime boundaries
 

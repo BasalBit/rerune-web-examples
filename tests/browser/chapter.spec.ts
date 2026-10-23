@@ -6,7 +6,7 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
   for (const width of [320, 390, 1440]) {
     test(`${engine} ${width}: Chapter library, filters, bookmarks, chapters, navigation and settings`, async ({ page, context }, testInfo) => {
       await page.setViewportSize({ width, height: 844 })
-      await context.route('https://rerune.io/**', route => route.abort())
+      await context.route('https://cdn.rerune.io/**', route => route.abort())
       const errors: string[] = []
       page.on('pageerror', error => errors.push(String(error)))
       await page.goto(`http://127.0.0.1:${port}/`)
@@ -78,7 +78,7 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
     })
   }
   test(`${engine}: direct reader Back and locale changes preserve scroll`, async ({ page, context }) => {
-    await context.route('https://rerune.io/**', route => route.abort())
+    await context.route('https://cdn.rerune.io/**', route => route.abort())
     await page.setViewportSize({ width: 390, height: 700 })
     await page.goto(`http://127.0.0.1:${port}/#read/atlas`)
     await page.waitForLoadState('networkidle')

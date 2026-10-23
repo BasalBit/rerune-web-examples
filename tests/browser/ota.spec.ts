@@ -29,13 +29,13 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       let manifests = 0
       const errors: string[] = []
       page.on('pageerror', error => errors.push(String(error)))
-      await context.route(/^https:\/\/(rerune\.io|rerune-fixture\.invalid)\//, async route => {
+      await context.route(/^https:\/\/(cdn\.rerune\.io|rerune-fixture\.invalid)\//, async route => {
         const request = route.request()
         const requestUrl = new URL(request.url())
         const staging = requestUrl.searchParams.get('staging') === 'true'
         const headers = request.headers()
-        expect(headers['x-ota-publish-id']).toBe(publishId)
-        for (const key of ['project_id', 'projectid', 'x-project-id']) expect(headers).not.toHaveProperty(key)
+        for (const key of ['x-ota-publish-id', 'project_id', 'projectid', 'x-project-id']) expect(headers).not.toHaveProperty(key)
+        if (requestUrl.hostname === 'cdn.rerune.io') expect(requestUrl.pathname).toBe(`/api/ota/${publishId}/manifest.json`)
         if (requestUrl.searchParams.has('staging')) {
           expect(requestUrl.searchParams.getAll('staging')).toEqual(['true'])
           stagingEndpoints.add(requestUrl.pathname)
@@ -52,10 +52,8 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
             }])),
           } })
         }
-        if (staging) {
-          expect(requestUrl.searchParams.has('version')).toBe(false)
-          expect(requestUrl.searchParams.has('target_version')).toBe(false)
-        }
+        // Staging always requests the full snapshot, never a versioned delta file.
+        if (staging) expect(requestUrl.pathname).not.toContain('..')
         const locale = requestUrl.pathname.slice(1).replace('.json', '')
         requests.add(locale)
         if (remote.failed.has(locale)) return route.abort()
@@ -102,7 +100,7 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await expect(page.locator('.staging-banner')).toBeVisible()
       await close()
       await expect(title).toHaveText('Draft VIP en 1')
-      expect([...stagingEndpoints].sort()).toEqual(['/api/sdk/translations/manifest', '/de.json', '/en.json', '/fr.json'])
+      expect([...stagingEndpoints].sort()).toEqual([`/api/ota/${publishId}/manifest.json`, '/de.json', '/en.json', '/fr.json'])
       await settings.click()
       await sheet.getByRole('switch', { name: 'Staging mode' }).click()
       await expect(page.locator('.staging-banner')).toHaveCount(0)

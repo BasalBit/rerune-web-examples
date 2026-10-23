@@ -146,7 +146,7 @@ test('published SDK switches between isolated staging and production snapshots',
     const staging = url.searchParams.get('staging') === 'true'
     requests.push({ url, headers })
 
-    if (url.pathname.endsWith('/manifest')) {
+    if (url.pathname.endsWith('/manifest.json')) {
       return Response.json({
         version: 1,
         main_language: 'en',
@@ -191,8 +191,7 @@ test('published SDK switches between isolated staging and production snapshots',
     }
     const firstStagingLocale = firstStagingRequests.find(({ url }) => url.hostname === 'fixture.invalid')
     assert(firstStagingLocale)
-    assert.equal(firstStagingLocale.url.searchParams.has('version'), false)
-    assert.equal(firstStagingLocale.url.searchParams.has('target_version'), false)
+    assert.equal(firstStagingLocale.url.pathname, '/en.json')
 
     await client.setStaging(false)
     assert.equal(client.isStaging(), false)

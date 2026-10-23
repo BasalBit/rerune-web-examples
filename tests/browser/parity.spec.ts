@@ -33,7 +33,7 @@ for (const [size, viewport] of [['desktop', { width: 1440, height: 1050 }], ['mo
     for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14202]] as const) {
       const context = await browser.newContext({ viewport, locale: 'en-US', reducedMotion: 'reduce' })
       try {
-        await context.route('https://rerune.io/**', route => route.abort())
+        await context.route('https://cdn.rerune.io/**', route => route.abort())
         const page = await context.newPage()
         await page.goto(`http://127.0.0.1:${port}/`)
         await page.waitForLoadState('networkidle')

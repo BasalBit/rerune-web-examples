@@ -1,6 +1,6 @@
 # ReRune examples
 
-A standalone consumer repository for trying ReRune OTA translations in React, React Native, and Angular. Clone this repository and install its npm dependencies; no other ReRune repository is needed. Each app consumes the public **1.6.0** npm packages and preserves its translation engine's normal rendering APIs.
+A standalone consumer repository for trying ReRune OTA translations in React, React Native, and Angular. Clone this repository and install its npm dependencies; no other ReRune repository is needed. Each app consumes the public **1.8.0** npm packages and preserves its translation engine's normal rendering APIs.
 
 ## Choose an app
 
@@ -34,7 +34,7 @@ The commands above work without a `.env` file, ReRune account, project creation,
 
 After installation, the apps can display bundled copy when the OTA service is unreachable. Live updates need internet access. Each app guide describes optional overrides for your own publishable read ID; console logging defaults to `off`. Expo also needs an SDK 54-compatible client or native development build, as described in its guide.
 
-## Integration in 1.6.0
+## Integration in 1.8.0
 
 React and React Native await `ReRune.setup(otaOptions, i18nOptions)` and render one `ReRuneProvider`. Native resources and language configuration stay in i18next. Angular uses `ReRune.provide(otaOptions, nativeOptions)` to compose its root engine provider, preserving native loaders and plugins.
 
@@ -48,7 +48,7 @@ Reading settings contains the Main/`vip` edition switch, an SDK staging-mode swi
 
 Bookmarks, progress, filters, tabs, and scroll stay in the app session through language and live-text changes. Only SDK translation data and the edition selection are cached persistently. The date in settings is a fixed example, not a synchronization timestamp. Refresh feedback distinguishes changed, unchanged, partially updated, and failed checks; partial results name the updated locales.
 
-SDK **1.6.0** adds opt-in staging previews while retaining hosted cardinal plurals with an omitted offset or explicit numeric `offset: 0`. The examples consume the published packages and unchanged OTA payloads.
+SDK **1.8.0** serves OTA from `https://cdn.rerune.io/api/ota/<publishId>/manifest.json`, with the publish ID in the URL path and no identity header. It applies a locale version only when every remote value is compatible with the placeholders, plurals, and formats the app ships; otherwise the previous copy stays in use. Staging previews and hosted cardinal plurals with an omitted offset or explicit numeric `offset: 0` are unchanged. The examples consume the published packages and unchanged OTA payloads.
 
 ## Boundaries
 

@@ -4,6 +4,6 @@
   "type": "module",
   "dependencies": {
     "@angular/core": "18.2.14",
-    "@rerune/core": "1.6.0"
+    "@rerune/core": "1.8.0"
   }
 }

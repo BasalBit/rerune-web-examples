@@ -13,12 +13,12 @@ for (const [engine, port] of [['ngx', 14201], ['transloco', 14202]] as const) {
     const errors: string[] = []
     page.on('pageerror', error => errors.push(String(error)))
     const remote = { online: false, version: 1, records: [] as TranslationRecord[] }
-    await context.route(/^https:\/\/(rerune\.io|rerune-fixture\.invalid)\//, async route => {
+    await context.route(/^https:\/\/(cdn\.rerune\.io|rerune-fixture\.invalid)\//, async route => {
       if (!remote.online) return route.abort()
       const request = route.request()
       const headers = request.headers()
-      expect(headers['x-ota-publish-id']).toBe('angular-browser-test')
-      for (const key of ['project_id', 'projectid', 'x-project-id']) expect(headers).not.toHaveProperty(key)
+      for (const key of ['x-ota-publish-id', 'project_id', 'projectid', 'x-project-id']) expect(headers).not.toHaveProperty(key)
+      if (new URL(request.url()).hostname === 'cdn.rerune.io') expect(new URL(request.url()).pathname).toBe('/api/ota/angular-browser-test/manifest.json')
       if (request.url().includes('manifest')) {
         return route.fulfill({ json: {
           version: remote.version, main_language: 'en',
