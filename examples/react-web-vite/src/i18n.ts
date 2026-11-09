@@ -1,4 +1,4 @@
-import { ReRune, createReRuneBrowserCacheStore } from '@rerune/react'
+import { ReRune } from '@rerune/react'
 import type { InitOptions } from 'i18next'
 
 import { resourcesByLocale } from '../../shared/messages'
@@ -37,11 +37,11 @@ const otaPublishId =
 const staging = import.meta.env.VITE_RERUNE_STAGING === 'true'
   || new URLSearchParams(window.location.search).get('staging') === 'true'
 
-export const clientReady = ReRune.setup({
+// Setup returns the client at once and reads no storage. ReRuneProvider starts it after the first render.
+export const client = ReRune.setup({
   otaPublishId,
   staging,
   logLevel: 'off',
-  cacheStore: createReRuneBrowserCacheStore({ prefix: 'rerune-web-example' }),
   updatePolicy: {
     checkOnStart: true,
     periodicIntervalInHours: 24,

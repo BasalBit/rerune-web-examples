@@ -33,7 +33,7 @@ export class App extends ChapterPage {
 
 export const appConfig = {
   providers: [
-    ReRune.provide({
+    ReRune.setup({
       otaPublishId: publishId,
       staging,
       logLevel: 'off',

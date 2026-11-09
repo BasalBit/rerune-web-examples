@@ -83,14 +83,19 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await expect(title).toHaveText('Live en 1')
       await expect(page.locator('progress')).toHaveAttribute('value', '1')
       await expect(page.getByTestId('bookmark-atlas')).toHaveAttribute('aria-pressed', 'true')
-      expect([...requests].sort()).toEqual(['de', 'en', 'fr'])
+      // A check downloads only the shown language and its fallbacks.
+      expect([...requests].sort()).toEqual(['en'])
       await expect(page.locator('select option')).toHaveCount(7) // system + five bundles + remote French
+      const checked = manifests
       await page.locator('select').selectOption('fr')
       await expect(title).toHaveText('Live fr 1')
       await page.locator('select').selectOption('de')
       await expect(title).toHaveText('Live de 1')
       await page.locator('select').selectOption('en')
       await expect(title).toHaveText('Live en 1')
+      // A language switch downloads that language without a manifest request.
+      expect(manifests).toBe(checked)
+      expect([...requests].sort()).toEqual(['de', 'en', 'fr'])
       await page.getByRole('button', { name: 'Back to library', exact: true }).click()
       await settings.click()
       await expect(sheet.locator('.samples')).toHaveText('Published 14.07.2026One published key2 published keys')
@@ -100,7 +105,7 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await expect(page.locator('.staging-banner')).toBeVisible()
       await close()
       await expect(title).toHaveText('Draft VIP en 1')
-      expect([...stagingEndpoints].sort()).toEqual([`/api/ota/${publishId}/manifest.json`, '/de.json', '/en.json', '/fr.json'])
+      expect([...stagingEndpoints].sort()).toEqual([`/api/ota/${publishId}/manifest.json`, '/en.json'])
       await settings.click()
       await sheet.getByRole('switch', { name: 'Staging mode' }).click()
       await expect(page.locator('.staging-banner')).toHaveCount(0)
@@ -132,17 +137,19 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       await close()
       await expect(title).toHaveText('Live en 1')
       remote.online = true
-      remote.versions = { en: 2, de: 2, fr: 1 }
-      remote.failed.add('de')
+      remote.versions = { en: 2, de: 1, fr: 2 }
+      remote.failed.add('fr')
+      // With French shown, a check evaluates French and its English fallback.
+      await page.locator('select').selectOption('fr')
+      await expect(title).toHaveText('Live fr 1')
       await check.click()
       await expect(feedback).toHaveText('Partially updated: en')
-      await expect(title).toHaveText('Live en 2')
-      await page.locator('select').selectOption('de')
-      await expect(title).toHaveText('Live de 1')
-      await page.locator('select').selectOption('en')
+      await expect(title).toHaveText('Live fr 1')
       await page.screenshot({ path: testInfo.outputPath('partial.png'), animations: 'disabled' })
       await check.click()
       await expect(feedback).toHaveText('Check failed; retained previous copy')
+      await expect(title).toHaveText('Live fr 1')
+      await page.locator('select').selectOption('en')
       await expect(title).toHaveText('Live en 2')
       remote.online = false
       await page.getByRole('button', { name: 'Continue reading', exact: true }).click()

@@ -1,6 +1,6 @@
 # React web with i18next
 
-A runnable ReRune reading app using [@rerune/react 1.8.0](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
+A runnable ReRune reading app using [@rerune/react 1.9.0](https://www.npmjs.com/package/@rerune/react), the public [ReRune service](https://rerune.io), and [SDK documentation](https://www.npmjs.com/package/@rerune/react#readme).
 
 ## Run
 
@@ -31,9 +31,9 @@ Console logging is `off`. A publishable read ID is sufficient; no administration
 
 ## Integration
 
-The checkout already installs `@rerune/react@1.8.0`. In an existing native app, install `@rerune/react@1.8.0` with your package manager and retain its native engine dependencies.
+The checkout already installs `@rerune/react@1.9.0`. In an existing native app, install `@rerune/react@1.9.0` with your package manager and retain its native engine dependencies.
 
-SDK 1.8.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react#readme); **Before ReRune** uses native i18next without the SDK.
+SDK 1.9.0 can create the i18next instance for this bundled-resource app. Adoption replaces initialization and the root translation provider. The comparisons follow the [SDK guide](https://www.npmjs.com/package/@rerune/react#readme); **Before ReRune** uses native i18next without the SDK.
 
 ### Native options
 
@@ -55,7 +55,7 @@ const i18nOptions = {
 } satisfies InitOptions
 ```
 
-Place imports at module scope and awaited initialization in the existing startup flow. `otaPublishId` below is the existing publishable ID from the configuration above. `staging` is the optional boolean derived from `VITE_RERUNE_STAGING` or `?staging=true`; it defaults to false. `Welcome` is the native translation component shown below; keep your application's existing screens and mount timing.
+Place imports at module scope. The native initialization below is awaited in the existing startup flow; ReRune's setup returns the client at once, so it runs at module scope instead. `otaPublishId` below is the existing publishable ID from the configuration above. `staging` is the optional boolean derived from `VITE_RERUNE_STAGING` or `?staging=true`; it defaults to false. `Welcome` is the native translation component shown below; keep your application's existing screens and mount timing.
 
 ### Before ReRune
 
@@ -81,16 +81,15 @@ import { I18nextProvider } from 'react-i18next'
 
 ### After ReRune
 
-Replace initialization with the single shared setup promise:
+Replace initialization with one setup call at module scope. It returns the client synchronously:
 
 ```ts
-import { ReRune, createReRuneBrowserCacheStore } from '@rerune/react'
+import { ReRune } from '@rerune/react'
 
-const client = await ReRune.setup({
+export const client = ReRune.setup({
   otaPublishId,
   staging,
   logLevel: 'off',
-  cacheStore: createReRuneBrowserCacheStore({ prefix: 'rerune-web-example' }),
   updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
 }, i18nOptions)
 ```
@@ -105,7 +104,9 @@ import { ReRuneProvider } from '@rerune/react'
 </ReRuneProvider>
 ```
 
-[src/main.tsx](src/main.tsx) awaits setup before rendering. `ReRuneProvider` includes `I18nextProvider`; register only the replacement and preserve any existing `defaultNS`. Setup waits for native initialization. Cache restoration and OTA delivery continue asynchronously. Keep the client stable across renders and handle setup rejection.
+[src/main.tsx](src/main.tsx) renders at once, without a loading screen. `ReRuneProvider` includes `I18nextProvider`; register only the replacement and preserve any existing `defaultNS`. With inline resources, i18next has finished initializing when setup returns, so the first render already shows the bundled copy, in the remembered language when that language is bundled. Setup reads no storage and sends no requests. After its first commit, `ReRuneProvider` restores the cached translations and runs the startup check, so after a reload the bundled copy can show for a moment before the cached OTA copy replaces it. Without the provider, ReRune does not start.
+
+Create the client once, at module scope, as [src/i18n.ts](src/i18n.ts) does. Setup throws at once for programming errors, such as an invalid publish ID. `client.ready` resolves when native initialization has finished; it is already settled for inline resources, so this app does not await it. Await it only where your startup awaited `i18n.init(...)`, for example with a backend loader.
 
 ### Native translation calls
 
@@ -120,13 +121,15 @@ function Welcome() {
 }
 ```
 
-Language switching still uses `i18n.changeLanguage(locale)` on the instance from `useTranslation()`. Non-component consumers obtain that same instance from `client.i18n` after setup resolves. There is no separate global singleton. OTA targets the `translation` namespace; later native resource writes remain beneath OTA overrides, and removing an override restores the latest application value.
+Language switching still uses `i18n.changeLanguage(locale)` on the instance from `useTranslation()`. Non-component consumers use that same instance through `client.i18n`. There is no separate global singleton. OTA targets the `translation` namespace; later native resource writes remain beneath OTA overrides, and removing an override restores the latest application value.
 
-The settings switch calls `client.setStaging(boolean)`. Production and staging snapshots are cached separately, and `client.isStaging()` reports the active mode. The mode itself is selected again from configuration on application startup.
+The edition switch calls `client.setVariant({ variant, persist: true })`. The edition applies at once and is then saved; if saving fails, it still applies for this session and the SDK logs the failure at log level `error` and above (this example uses `off`), so the app shows no error for it.
+
+The staging switch calls `client.setStaging(boolean)`, which resolves with the result of the check it runs in the selected mode. Production and staging snapshots are cached separately, and `client.isStaging()` reports the active mode. The mode itself is selected again from configuration on application startup.
 
 ### Removing ReRune
 
-Restore both **Before ReRune** blocks with the same options and resource files. Replace any non-component `client.i18n` use with the restored native instance. Remove ReRune-only refresh, status, and variant controls and their imports, then run from the repository root:
+Restore both **Before ReRune** blocks with the same options and resource files, and render once native initialization completes. Replace any non-component `client.i18n` use with the restored native instance. Remove ReRune-only refresh, status, variant, and staging controls and their imports, then run from the repository root:
 
 ```bash
 pnpm --dir examples/react-web-vite remove @rerune/react
@@ -136,7 +139,7 @@ Keep `i18next`, `react-i18next`, and the native translation calls. Ensure bundle
 
 ### Advanced: existing instances and plugins
 
-If your app owns `.use(...)` plugins or depends on a global instance, keep that instance and pass `i18n` in the first setup argument. Keep the same native options as the second argument. For an already initialized instance, await its native initialization first and omit setup's second argument. This example has no such consumers and lets ReRune create the instance.
+If your app owns `.use(...)` plugins or depends on a global instance, keep that instance and pass `i18n` in the first setup argument. Keep the same native options as the second argument. For an instance that is already initialized, or whose own initialization is still running, omit setup's second argument. A backend loader or an asynchronous language detector makes native initialization asynchronous: setup still returns the client at once, and the app awaits `client.ready` where it awaited `i18n.init(...)` before. This example has no such consumers and lets ReRune create the instance.
 
 ## Manual OTA check
 
@@ -144,20 +147,22 @@ If your app owns `.use(...)` plugins or depends on a global instance, keep that 
 2. Switch between English, German, Spanish, Italian, and Portuguese while reading. Additional SDK locales appear alongside bundled languages. Chapter progress, bookmarks, filters, tabs, and scroll remain in this session.
 3. Open Reading settings for the Main/`vip` edition switch, staging-mode switch, fixed `14.07.2026` interpolation sample, and `plural_sample` cardinal plural. Turn staging on to preview enabled drafts and off to restore published content. A banner stays visible while staging is active. Refresh from the library, reader, or settings.
 4. Configure your own publishable OTA ID. Publish a root translation or a distinct `vip` value, then refresh. Edition choice, the picked language, and SDK translation caches persist across reloads; reading state does not. `src/i18n.ts` reads the remembered language before `ReRune.setup(...)`, so the first render is already in it.
-5. Block the OTA service or one locale request and refresh again. Partial results identify updated languages; failures retain existing text. Repeated taps start one check at a time.
+5. Block the OTA service or one locale request and refresh again. A check covers only the shown language and its English fallback, so show another language, such as German, to see a partial result. Partial results identify updated languages; failures retain existing text. Repeated taps start one check at a time.
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.
 
-This example pins the released SDK **1.8.0**, including CDN delivery from `cdn.rerune.io`, remote value compatibility checks against the shipped copy, isolated production and staging caches, and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
+This example pins the released SDK **1.9.0**, including CDN delivery from `cdn.rerune.io`, remote value compatibility checks against the shipped copy, isolated production and staging caches, and hosted cardinal plurals with explicit numeric `offset: 0`. OTA payloads are consumed unchanged.
 
 ## Runtime boundaries
 
-Checks are asynchronous while the app runs, not push delivery or OS background execution. All manifest languages are considered, and languages can retain different versions after a failure. Variants share access to the delivered project resources; they do not restrict access. Reactive consumers update; strings saved in variables and static output require recalculation.
+Checks run at startup, when the page becomes visible again, on manual refresh, and every 24 hours while the page is open. They are asynchronous, not push delivery or OS background execution. A check covers the shown language and its English fallback; other published languages load when the app shows them, and a language change sends no manifest request. Languages can retain different versions after a failure. Variants share access to the delivered project resources; they do not restrict access. Reactive consumers update; strings saved in variables and static output require recalculation.
 
 OTA grammar is plain text, declared interpolation, and one cardinal plural. Native bundled MessageFormat support does not add general ICU support to OTA messages.
 
 ## Translation cache
 
-The built-in browser cache retains updates in session memory when localStorage is unavailable or a write fails. Newer session values take precedence over older stored copy. Session memory is lost on reload; a later successful write persists the current value.
+The app passes no `cacheStore`, so ReRune uses its default browser store. Versions of this app on SDK 1.8.0 stored their cache under a `rerune-web-example` prefix, which 1.9.0 no longer reads: after the upgrade, translations download again once and the edition switch starts at Main.
+
+When localStorage is unavailable or a write fails, an update still applies for the current session. A reload starts from the last successful write; a later successful write persists the current value.
 
 See [Contributing](../../CONTRIBUTING.md) for automated checks and the [MIT notice](../../LICENSE) for code and artwork licensing. The bundled Instrument Sans and Lora fonts include their own SIL Open Font License notices in [the font directory](../shared/fonts/).

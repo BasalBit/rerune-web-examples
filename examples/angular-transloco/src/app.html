@@ -90,12 +90,10 @@
       <button type="button" class="edition-switch" role="switch" [attr.aria-checked]="rerune.state().variant !== 'Main'" [attr.aria-label]="'translation_variant' | transloco" [disabled]="savingVariant()" (click)="toggleVariant()">
         <span>{{ 'translation_variant' | transloco }}<small>{{ rerune.state().variant }}</small></span><span class="switch-track"></span>
       </button>
-      @if (variantError()) { <p role="alert">{{ 'variant_save_error' | transloco }}</p> }
       @if (stagingActive()) { <p class="session-note">{{ 'staging_mode_active' | transloco }}</p> }
       <button type="button" class="edition-switch" role="switch" [attr.aria-checked]="stagingActive()" [attr.aria-label]="'staging_mode' | transloco" [disabled]="switchingStaging()" (click)="toggleStaging()">
         <span>{{ 'staging_mode' | transloco }}<small>{{ (stagingActive() ? 'staging_mode_on' : 'staging_mode_off') | transloco }}</small></span><span class="switch-track"></span>
       </button>
-      @if (stagingError()) { <p role="alert">{{ 'staging_change_error' | transloco }}</p> }
       <div class="samples"><p>{{ 'publish_date' | transloco: { publish_date: date } }}</p><p>{{ 'plural_sample' | transloco: { count: 1 } }}<br>{{ 'plural_sample' | transloco: { count: 2 } }}</p></div>
       <ng-container *ngTemplateOutlet="refreshControl" /><p role="status" class="feedback">{{ feedback() ? refreshText(feedback()!, locale(), updatedLocales()) : '' }}</p><p class="session-note">{{ 'session_note' | transloco }}</p>
     </div>

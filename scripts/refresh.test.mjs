@@ -14,3 +14,13 @@ test('partial status identifies changed languages without claiming every other l
   assert.equal(refreshText('partial', 'de-DE', ['en']), 'Teilweise aktualisiert: en')
   assert.equal(refreshText('error', 'en'), 'Check failed; retained previous copy')
 })
+
+test('partial status without changed texts names no languages', () => {
+  // Since 1.9.0, a removed language or a renamed one also sets hasUpdates, with no entry in updatedLocales.
+  assert.equal(classifyCheck({ hasErrors: true, hasUpdates: true }), 'partial')
+  assert.equal(refreshText('partial', 'en', []), 'Partially updated')
+  assert.equal(refreshText('partial', 'de', []), 'Teilweise aktualisiert')
+  assert.equal(refreshText('partial', 'es'), 'Actualizado parcialmente')
+  assert.equal(refreshText('partial', 'it', []), 'Aggiornamento parziale')
+  assert.equal(refreshText('partial', 'pt', []), 'Atualizado parcialmente')
+})

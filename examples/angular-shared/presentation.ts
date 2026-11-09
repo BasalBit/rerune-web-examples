@@ -1,20 +1,20 @@
 import { classifyCheck, refreshText, type RefreshPhase } from '../shared/refresh'
 import { Directive, HostListener, ViewChild, computed, signal } from '@angular/core'
 import type { AfterViewChecked, ElementRef, OnInit, Signal } from '@angular/core'
-import type { ReRuneSetVariantOptions, ReRuneState, ReRuneUpdateResult } from '@rerune/core'
 import { initialReadingState, readingReducer, stories, storyIds } from '../shared/stories'
 import type { LibraryTab, StoryId } from '../shared/stories'
 import { initialLanguage, messages, publishId, restoredLanguage, saveLanguage, savedLanguage, systemLanguage } from './messages'
 
-// Both examples keep their own native translation service and pipe.
+// Both examples keep their own native translation service and pipe. Each
+// injects ReRuneService from its engine entry point, which fits this shape.
 @Directive()
 export abstract class ChapterPage implements AfterViewChecked, OnInit {
   abstract readonly rerune: {
-    state: Signal<ReRuneState>
+    state: Signal<{ variant: string; availableLocales: readonly string[] }>
     ready(): Promise<void>
-    checkForUpdates(): Promise<ReRuneUpdateResult>
-    setVariant(value: string | ReRuneSetVariantOptions): Promise<void>
-    setStaging(staging: boolean): Promise<void>
+    checkForUpdates(): Promise<{ hasUpdates: boolean; hasErrors: boolean; updatedLocales: readonly string[] }>
+    setVariant(value: { variant: string; persist: boolean }): Promise<void>
+    setStaging(staging: boolean): Promise<unknown>
     isStaging(): boolean
   }
   abstract locale(): string
@@ -40,9 +40,7 @@ export abstract class ChapterPage implements AfterViewChecked, OnInit {
   readonly updatedLocales = signal<readonly string[]>([])
   readonly refreshText = refreshText
   readonly savingVariant = signal(false)
-  readonly variantError = signal(false)
   readonly requestedStaging = signal<boolean | null>(null)
-  readonly stagingError = signal(false)
   readonly systemLocale = signal(savedLanguage === 'system')
   readonly availableLocales = computed(() => [...new Set([...Object.keys(messages), ...this.rerune.state().availableLocales])])
   readonly nativeNames: Record<string, string> = { en: 'English', de: 'Deutsch', es: 'Español', it: 'Italiano', pt: 'Português' }
@@ -131,21 +129,16 @@ export abstract class ChapterPage implements AfterViewChecked, OnInit {
   async toggleVariant() {
     if (this.savingVariant()) return
     this.savingVariant.set(true)
-    this.variantError.set(false)
-    try {
-      const variant = this.rerune.state().variant === 'Main' ? 'vip' : 'Main'
-      await this.rerune.setVariant(variant)
-      await this.rerune.setVariant({ variant, persist: true })
-    } catch { this.variantError.set(true) }
+    // The edition applies at once. A failed save keeps it for this session and resolves; the SDK logs it at log level error and above.
+    try { await this.rerune.setVariant({ variant: this.rerune.state().variant === 'Main' ? 'vip' : 'Main', persist: true }) }
     finally { this.savingVariant.set(false) }
   }
   async toggleStaging() {
     if (this.requestedStaging() !== null) return
     const staging = !this.stagingActive()
     this.requestedStaging.set(staging)
-    this.stagingError.set(false)
+    // The mode switches at once. The call never rejects; a failed check of the new mode is in its result.
     try { await this.rerune.setStaging(staging) }
-    catch { this.stagingError.set(true) }
     finally { this.requestedStaging.set(null) }
   }
   stagingActive() { return this.requestedStaging() ?? this.rerune.isStaging() }

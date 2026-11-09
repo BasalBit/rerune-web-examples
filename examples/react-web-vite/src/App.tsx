@@ -67,7 +67,6 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
   const [updatedLocales, setUpdatedLocales] = useState<readonly string[]>([])
   const inFlight = useRef(false)
   const [savingVariant, setSavingVariant] = useState(false)
-  const [variantError, setVariantError] = useState(false)
   const [requestedStaging, setRequestedStaging] = useState<boolean | null>(null)
   const [stagingError, setStagingError] = useState(false)
   const stagingInFlight = useRef(false)
@@ -130,14 +129,10 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
   async function toggleVariant() {
     if (savingVariant) return
     setSavingVariant(true)
-    setVariantError(false)
     try {
-      // Retain the current session's selection if persistence fails.
-      const variant = sdk.variant === ReRune.Main ? testVariant : ReRune.Main
-      await client.setVariant(variant)
-      await client.setVariant({ variant, persist: true })
-    } catch { setVariantError(true) }
-    finally { setSavingVariant(false) }
+      // A failed save keeps the edition for this session; the SDK logs it.
+      await client.setVariant({ variant: sdk.variant === ReRune.Main ? testVariant : ReRune.Main, persist: true })
+    } finally { setSavingVariant(false) }
   }
   async function toggleStaging() {
     if (stagingInFlight.current) return
@@ -241,7 +236,6 @@ function ChapterExperience({ testVariant }: { testVariant: string }) {
         <h2 id="settings-title">{t('reading_settings')}</h2><p>{t('settings_description')}</p>
         <button type="button" className="edition-switch" role="switch" aria-checked={sdk.variant !== ReRune.Main} aria-label={t('translation_variant')}
           disabled={savingVariant} onClick={() => void toggleVariant()}><span>{t('translation_variant')}<small>{sdk.variant}</small></span><span className="switch-track" /></button>
-        {variantError && <p role="alert">{t('variant_save_error')}</p>}
         {stagingActive && <p className="session-note">{t('staging_mode_active')}</p>}
         <button type="button" className="edition-switch" role="switch" aria-checked={stagingActive} aria-label={t('staging_mode')}
           disabled={switchingStaging} onClick={() => void toggleStaging()}><span>{t('staging_mode')}<small>{t(stagingActive ? 'staging_mode_on' : 'staging_mode_off')}</small></span><span className="switch-track" /></button>

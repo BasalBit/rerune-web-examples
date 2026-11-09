@@ -29,7 +29,6 @@ export function ChapterExperience({ testVariant, savedSystem = false }: { testVa
   const [refreshing, setRefreshing] = useState(false)
   const [feedback, setFeedback] = useState<RefreshPhase | null>(null)
   const [savingVariant, setSavingVariant] = useState(false)
-  const [variantError, setVariantError] = useState(false)
   const [requestedStaging, setRequestedStaging] = useState<boolean | null>(null)
   const [stagingError, setStagingError] = useState(false)
   const [updatedLocales, setUpdatedLocales] = useState<readonly string[]>([])
@@ -56,6 +55,8 @@ export function ChapterExperience({ testVariant, savedSystem = false }: { testVa
     })
     return () => subscription.remove()
   }, [reader, settings])
+  // A saved System default that is read after the chapter appeared.
+  useEffect(() => { if (savedSystem) setSystemLocale(true) }, [savedSystem])
   useEffect(() => {
     if (!systemLocale) return
     const update = () => { void i18n.changeLanguage(systemLanguage()) }
@@ -81,13 +82,11 @@ export function ChapterExperience({ testVariant, savedSystem = false }: { testVa
     if (variantInFlight.current) return
     variantInFlight.current = true
     setSavingVariant(true)
-    setVariantError(false)
     try {
-      const variant = sdk.variant === ReRune.Main ? testVariant : ReRune.Main
-      await client.setVariant(variant)
-      await client.setVariant({ variant, persist: true })
-    } catch { setVariantError(true) }
-    finally { variantInFlight.current = false; setSavingVariant(false) }
+      // The edition applies at once and is then saved. A failed save keeps it for
+      // this run only; the SDK logs it at log level error and above.
+      await client.setVariant({ variant: sdk.variant === ReRune.Main ? testVariant : ReRune.Main, persist: true })
+    } finally { variantInFlight.current = false; setSavingVariant(false) }
   }
   async function toggleStaging(staging: boolean) {
     if (stagingInFlight.current) return
@@ -204,7 +203,7 @@ export function ChapterExperience({ testVariant, savedSystem = false }: { testVa
             <Text accessibilityRole="header" style={styles.sheetTitle}>{t('reading_settings')}</Text><Text style={styles.copy}>{t('settings_description')}</Text>
             <View style={styles.edition}><View style={styles.editionCopy}><Text style={styles.strong}>{t('translation_variant')}</Text><Text style={styles.small}>{sdk.variant}</Text></View>
               <Switch accessibilityLabel={t('translation_variant')} disabled={savingVariant} value={sdk.variant !== ReRune.Main} onValueChange={() => void toggleVariant()} trackColor={{ false: COLORS.border, true: COLORS.accent }} thumbColor={COLORS.text} />
-            </View>{variantError && <Text accessibilityRole="alert" style={styles.copy}>{t('variant_save_error')}</Text>}
+            </View>
             {stagingActive && <Text style={styles.small}>{t('staging_mode_active')}</Text>}
             <View style={styles.edition}><View style={styles.editionCopy}><Text style={styles.strong}>{t('staging_mode')}</Text><Text style={styles.small}>{t(stagingActive ? 'staging_mode_on' : 'staging_mode_off')}</Text></View>
               <Switch accessibilityLabel={t('staging_mode')} disabled={switchingStaging} value={stagingActive} onValueChange={value => void toggleStaging(value)} trackColor={{ false: COLORS.border, true: COLORS.accent }} thumbColor={COLORS.text} />

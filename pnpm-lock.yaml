@@ -77,8 +77,8 @@ importers:
         specifier: 18.0.0
         version: 18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)
       '@rerune/angular':
-        specifier: 1.8.0
-        version: 1.8.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 1.9.0
+        version: 1.9.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)
       ngx-translate-messageformat-compiler:
         specifier: 7.3.0
         version: 7.3.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@messageformat/core@3.4.0)(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))
@@ -110,9 +110,6 @@ importers:
       '@angular/core':
         specifier: 18.2.14
         version: 18.2.14(rxjs@7.8.2)(zone.js@0.14.10)
-      '@rerune/core':
-        specifier: 1.8.0
-        version: 1.8.0
 
   examples/angular-transloco:
     dependencies:
@@ -138,8 +135,8 @@ importers:
         specifier: 1.0.0-beta.5
         version: 1.0.0-beta.5
       '@rerune/angular':
-        specifier: 1.8.0
-        version: 1.8.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 1.9.0
+        version: 1.9.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
@@ -165,12 +162,15 @@ importers:
 
   examples/react-native-expo:
     dependencies:
+      '@formatjs/intl-pluralrules':
+        specifier: 6.3.16
+        version: 6.3.16
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))
       '@rerune/react-native':
-        specifier: 1.8.0
-        version: 1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
+        specifier: 1.9.0
+        version: 1.9.0(@react-native-async-storage/async-storage@2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0)))(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)
       expo:
         specifier: 54.0.37
         version: 54.0.37(@babel/core@7.29.7)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
@@ -202,8 +202,8 @@ importers:
   examples/react-web-vite:
     dependencies:
       '@rerune/react':
-        specifier: 1.8.0
-        version: 1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)
+        specifier: 1.9.0
+        version: 1.9.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)
       i18next:
         specifier: ^25.0.0
         version: 25.10.10(typescript@5.9.3)
@@ -1693,6 +1693,18 @@ packages:
     resolution: {integrity: sha512-J3eL4n4h5QTwfD0SIz8OIk6/+sOL/hFZAMacgCM07UNlxBQfJipEpIC2AQxvGkbYeStByJ0TVhQAJo+DeNgaSQ==}
     hasBin: true
 
+  '@formatjs/bigdecimal@0.2.7':
+    resolution: {integrity: sha512-B4+XY/e4u5v261r3a37Kq2ax91gPZSKGyVpx8X5dygAggLlUz+6MeBpmAhaBFGB8WQ4JB1qD+QtKHk9aJkEb9Q==}
+
+  '@formatjs/fast-memoize@3.1.7':
+    resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
+
+  '@formatjs/intl-localematcher@0.9.0':
+    resolution: {integrity: sha512-Z7TD3ssNry1Av1dVDoq/mzpxGyxqWwU0ClWEo+BB3k0JQTeQvUGmeK9WZGYvlqStS0UqkaKXk3dfjsb6NaHAxw==}
+
+  '@formatjs/intl-pluralrules@6.3.16':
+    resolution: {integrity: sha512-iOqCpBM2fo7bbbWqno+yN9WioepV01N2q3KawFZhRYADzijpzmIIA6cbFXrriCI1Mt2q5c7mceiKHoQkEFf0/Q==}
+
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
     engines: {node: '>=18.18.0'}
@@ -2215,35 +2227,36 @@ packages:
       '@types/react':
         optional: true
 
-  '@rerune/angular@1.8.0':
-    resolution: {integrity: sha512-VTKNZARAw98+2uV7f7+PfQDWuHWeivjyIil003nDHYJzROh2cZSVsySs3nX9J5AjifXA50EwkdCEHeI7Y2DzdQ==}
+  '@rerune/angular@1.9.0':
+    resolution: {integrity: sha512-sCRDwH0E+t3tLUQlTN/OkrK6WP0QfKsgmUZaT3Js9VT2Ajura+Ot0c+QNNHOajG3Wq9TfHD2oUQ2413Jd5rVPA==}
     peerDependencies:
       '@angular/common': '>=18'
       '@angular/core': '>=18'
-      '@jsverse/transloco': '>=8 <9'
-      '@ngx-translate/core': '>=18 <19'
-      rxjs: '>=7 <8'
+      '@jsverse/transloco': '>=8'
+      '@ngx-translate/core': '>=18'
+      rxjs: '>=7.5.5'
     peerDependenciesMeta:
       '@jsverse/transloco':
         optional: true
       '@ngx-translate/core':
         optional: true
 
-  '@rerune/core@1.8.0':
-    resolution: {integrity: sha512-u82FYPy8dYeM6is4lpfiKqZeiFc+ct6VJ75fsDvSCA7UXDJ2QmYrNPQDpWqjiqIonTMvvrhb35WU6lKXYN8Nhg==}
+  '@rerune/core@1.9.0':
+    resolution: {integrity: sha512-tn1CEWWi9WOHMeTzz0GliETklj/NMmdc2NtfbQiQZ8COD+so19eQnYrG3ht5I7IVa0WPvjjW8bWp7cYMjI9LiA==}
 
-  '@rerune/react-native@1.8.0':
-    resolution: {integrity: sha512-goGVp7458EVXguYDmG4EmrQWtL6TFM75MdmiR8CANJbAOyvbEmg7j2/ImnvLaRN91DwVsgiHdANVqMPfS2tK2w==}
+  '@rerune/react-native@1.9.0':
+    resolution: {integrity: sha512-sLEkPkN+p3vRBXG0D/UAnI0IYJ0C8XVAF6+ARIKbdpAByBXrDxwV7WfbqfisTnR++DdeKozjZv5NT6PBc/J+Zw==}
     peerDependencies:
-      i18next: '>=23'
+      '@react-native-async-storage/async-storage': ^1.23.1 || ^2.1.2 || >=3.1.1
+      i18next: '>=23.2.3'
       react: 19.1.0
       react-i18next: '>=14'
       react-native: 0.81.5
 
-  '@rerune/react@1.8.0':
-    resolution: {integrity: sha512-GcFKwz6i0M1VnR0tMNV5J7g0/Bxfwd3QCJEQ3Hw0/aVKja/yKrmNKUNIeVBIJzLOPcwUlZVo+Ky6JRKrg2Np3g==}
+  '@rerune/react@1.9.0':
+    resolution: {integrity: sha512-an8rXc4exPJhElZPZrmapwBXUUNZ6JO0bdAdxX89h5/A7LkUj9/Eol7xwFsSAePCDmtKcMzRgURV61L1XqDXwg==}
     peerDependencies:
-      i18next: '>=23'
+      i18next: '>=23.2.3'
       react: 19.1.0
       react-i18next: '>=14'
 
@@ -9095,6 +9108,19 @@ snapshots:
       chalk: 4.1.2
       js-yaml: 4.3.2
 
+  '@formatjs/bigdecimal@0.2.7': {}
+
+  '@formatjs/fast-memoize@3.1.7': {}
+
+  '@formatjs/intl-localematcher@0.9.0':
+    dependencies:
+      '@formatjs/fast-memoize': 3.1.7
+
+  '@formatjs/intl-pluralrules@6.3.16':
+    dependencies:
+      '@formatjs/bigdecimal': 0.2.7
+      '@formatjs/intl-localematcher': 0.9.0
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -9764,41 +9790,41 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  '@rerune/angular@1.8.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@rerune/angular@1.9.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(@jsverse/transloco@8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4))(@ngx-translate/core@18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
       '@angular/common': 18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)
       '@angular/core': 18.2.14(rxjs@7.8.2)(zone.js@0.14.10)
-      '@rerune/core': 1.8.0
+      '@rerune/core': 1.9.0
       rxjs: 7.8.2
       tslib: 2.8.1
     optionalDependencies:
       '@jsverse/transloco': 8.4.0(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)(typescript@5.5.4)
       '@ngx-translate/core': 18.0.0(@angular/common@18.2.14(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@18.2.14(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)
 
-  '@rerune/core@1.8.0':
+  '@rerune/core@1.9.0':
     dependencies:
       '@noble/hashes': 1.8.0
 
-  '@rerune/react-native@1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)':
+  '@rerune/react-native@1.9.0(@react-native-async-storage/async-storage@2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0)))(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-native-async-storage/async-storage': 2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))
-      '@rerune/core': 1.8.0
-      '@rerune/react': 1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)
+      '@rerune/core': 1.9.0
+      '@rerune/react': 1.9.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)
       i18next: 25.10.10(typescript@5.9.3)
       react: 19.1.0
       react-i18next: 15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
       react-native: 0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0)
 
-  '@rerune/react@1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)':
+  '@rerune/react@1.9.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)':
     dependencies:
-      '@rerune/core': 1.8.0
+      '@rerune/core': 1.9.0
       i18next: 25.10.10(typescript@5.9.3)
       react: 19.1.0
       react-i18next: 15.7.4(i18next@25.10.10(typescript@5.9.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
 
-  '@rerune/react@1.8.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)':
+  '@rerune/react@1.9.0(i18next@25.10.10(typescript@5.9.3))(react-i18next@15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(react@19.1.0)':
     dependencies:
-      '@rerune/core': 1.8.0
+      '@rerune/core': 1.9.0
       i18next: 25.10.10(typescript@5.9.3)
       react: 19.1.0
       react-i18next: 15.7.4(i18next@25.10.10(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.14)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)

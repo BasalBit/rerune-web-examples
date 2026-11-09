@@ -1,4 +1,4 @@
-import { ReRune, createReRuneAsyncStorageCacheStore } from '@rerune/react-native'
+import { ReRune } from '@rerune/react-native'
 import type { InitOptions } from 'i18next'
 
 import { resourcesByLocale } from '../../shared/messages'
@@ -24,16 +24,12 @@ const otaPublishId =
   process.env.EXPO_PUBLIC_RERUNE_OTA_PUBLISH_ID?.trim() || DEFAULT_OTA_PUBLISH_ID
 const staging = process.env.EXPO_PUBLIC_RERUNE_STAGING === 'true'
 
-const reruneCacheStore = createReRuneAsyncStorageCacheStore({ prefix: 'rerune-rn-example' })
-const clientReady = ReRune.setup({
+// Set up once, at module scope in this module. React Native setup restores the
+// AsyncStorage cache and starts the startup check right away, so a component
+// must not create the client. The default store keeps the cache in AsyncStorage.
+export const client = ReRune.setup({
   otaPublishId,
   staging,
   logLevel: 'off',
-  cacheStore: reruneCacheStore,
   updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
 }, i18nOptions)
-// Keep startup rejection handled even before the root effect mounts.
-export const startup = clientReady.then(
-  client => ({ client, error: null }),
-  error => ({ client: null, error: error instanceof Error ? error : new Error(String(error)) }),
-)
