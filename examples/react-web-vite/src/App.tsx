@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReRune, ReRuneProvider, useReRune, type ReRuneI18nextClient } from '@rerune/react'
 import { StoryCover } from './StoryCover'
+import { saveLanguage, savedLanguage, systemLanguage } from './i18n'
 import { initialReadingState, readingReducer, stories, storyIds, type LibraryTab, type StoryId } from '../../shared/stories'
 import '../../shared/reading.css'
 
@@ -24,14 +25,14 @@ function Icon({ name }: { name: IconName }) {
 function LanguagePicker() {
   const { t, i18n } = useTranslation()
   const { state } = useReRune()
-  const [system, setSystem] = useState(false)
+  const [system, setSystem] = useState(savedLanguage === 'system')
   const locales = [...new Set(['en', 'de', 'es', 'it', 'pt', ...state.availableLocales])]
   const nativeNames: Record<string, string> = { en: 'English', de: 'Deutsch', es: 'Español', it: 'Italiano', pt: 'Português' }
   useEffect(() => {
     if (!system) return
     const update = () => {
-      const locale = navigator.languages.map(value => value.split('-')[0] ?? '').find(value => ['en', 'de', 'es', 'it', 'pt'].includes(value)) ?? 'en'
-      void i18n.changeLanguage(locale)
+      const locale = systemLanguage()
+      if (locale !== i18n.language) void i18n.changeLanguage(locale)
     }
     update()
     window.addEventListener('languagechange', update)
@@ -41,6 +42,7 @@ function LanguagePicker() {
     <Icon name="globe" /><span aria-hidden="true">{i18n.language.toUpperCase()}⌄</span>
     <select aria-label={t('welcome_locale_label')} value={system ? 'system' : i18n.language}
       onChange={event => {
+        saveLanguage(event.target.value)
         setSystem(event.target.value === 'system')
         if (event.target.value !== 'system') void i18n.changeLanguage(event.target.value)
       }}>

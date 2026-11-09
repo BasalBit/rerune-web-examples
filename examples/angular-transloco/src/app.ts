@@ -4,7 +4,7 @@ import { of, delay } from 'rxjs'
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco'
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat'
 import { ReRune, ReRuneService } from '@rerune/angular/transloco'
-import { messages, publishId, staging } from '../../angular-shared/messages'
+import { initialLanguage, messages, publishId, staging } from '../../angular-shared/messages'
 import { ChapterPage } from '../../angular-shared/presentation'
 import { ChapterIcon, ChapterCover } from '../../angular-shared/artwork'
 
@@ -39,7 +39,7 @@ export const appConfig = {
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
     }, {
-      config: { availableLangs: Object.keys(messages), defaultLang: 'en', fallbackLang: 'en', reRenderOnLangChange: true },
+      config: { availableLangs: Object.keys(messages), defaultLang: initialLanguage, fallbackLang: 'en', reRenderOnLangChange: true },
       loader: DemoLoader,
     }),
     provideTranslocoMessageformat(),

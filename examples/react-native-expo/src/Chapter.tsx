@@ -2,6 +2,7 @@ import { classifyCheck, refreshText, type RefreshPhase } from '../../shared/refr
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { AppState, BackHandler, Image, Modal, Pressable, RefreshControl, ScrollView, Switch, Text, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTranslation } from 'react-i18next'
 import { ReRune, useReRune } from '@rerune/react-native'
 import { initialReadingState, readingReducer, stories, storyIds, type LibraryTab, type StoryId } from '../../shared/stories'
@@ -11,14 +12,20 @@ import { COLORS, styles } from './theme'
 import reruneLogo from '../../shared/assets/rerune-logo.png'
 
 const bundledLocales = ['en', 'de', 'es', 'it', 'pt']
-export function ChapterExperience({ testVariant }: { testVariant: string }) {
+// The app, not the SDK, remembers the picked language: a code or 'system'.
+export const LANGUAGE_KEY = 'rerune-example-language'
+export function systemLanguage() {
+  const locale = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0] ?? 'en'
+  return bundledLocales.includes(locale) ? locale : 'en'
+}
+export function ChapterExperience({ testVariant, savedSystem = false }: { testVariant: string; savedSystem?: boolean }) {
   const { t, i18n } = useTranslation()
   const { client, state: sdk, checkForUpdates } = useReRune()
   const { width } = useWindowDimensions()
   const [book, dispatch] = useReducer(readingReducer, initialReadingState)
   const [reader, setReader] = useState<StoryId | null>(null)
   const [settings, setSettings] = useState(false)
-  const [systemLocale, setSystemLocale] = useState(false)
+  const [systemLocale, setSystemLocale] = useState(savedSystem)
   const [refreshing, setRefreshing] = useState(false)
   const [feedback, setFeedback] = useState<RefreshPhase | null>(null)
   const [savingVariant, setSavingVariant] = useState(false)
@@ -51,10 +58,7 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
   }, [reader, settings])
   useEffect(() => {
     if (!systemLocale) return
-    const update = () => {
-      const locale = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0] ?? 'en'
-      void i18n.changeLanguage(bundledLocales.includes(locale) ? locale : 'en')
-    }
+    const update = () => { void i18n.changeLanguage(systemLanguage()) }
     update()
     const subscription = AppState.addEventListener('change', state => { if (state === 'active') update() })
     return () => subscription.remove()
@@ -142,7 +146,11 @@ export function ChapterExperience({ testVariant }: { testVariant: string }) {
             <Text style={styles.readerHeaderTitle}>{t(story.title)}</Text></> : <View style={styles.wordmark}><Image source={reruneLogo} style={styles.brandLogo} accessible={false} /><Text style={styles.wordmarkText}>ReRune</Text></View>}
           <LanguageSelector label={t('welcome_locale_label')} activeLocale={systemLocale ? 'system' : i18n.language}
             availableLocales={[...new Set([...bundledLocales, ...sdk.availableLocales])]} systemLabel={t('welcome_locale_system_default')} closeLabel={t('back_library')}
-            onSelect={locale => { setSystemLocale(locale === 'system'); if (locale !== 'system') void i18n.changeLanguage(locale) }} />
+            onSelect={locale => {
+              setSystemLocale(locale === 'system'); if (locale !== 'system') void i18n.changeLanguage(locale)
+              // A failed save keeps the choice for this run only.
+              Promise.resolve().then(() => AsyncStorage.setItem(LANGUAGE_KEY, locale)).catch(() => undefined)
+            }} />
           {!reader && <Pressable accessibilityRole="button" accessibilityLabel={t('reading_settings')} onPress={() => setSettings(true)} style={({ pressed }) => [styles.iconButton, styles.settingsButton, pressed && styles.pressed]}><Icon name="settings" size={20} /></Pressable>}
         </View>
         {reader ? <>

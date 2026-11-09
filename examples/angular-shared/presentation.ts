@@ -1,16 +1,17 @@
 import { classifyCheck, refreshText, type RefreshPhase } from '../shared/refresh'
 import { Directive, HostListener, ViewChild, computed, signal } from '@angular/core'
-import type { AfterViewChecked, ElementRef, Signal } from '@angular/core'
+import type { AfterViewChecked, ElementRef, OnInit, Signal } from '@angular/core'
 import type { ReRuneSetVariantOptions, ReRuneState, ReRuneUpdateResult } from '@rerune/core'
 import { initialReadingState, readingReducer, stories, storyIds } from '../shared/stories'
 import type { LibraryTab, StoryId } from '../shared/stories'
-import { messages, publishId } from './messages'
+import { initialLanguage, messages, publishId, restoredLanguage, saveLanguage, savedLanguage, systemLanguage } from './messages'
 
 // Both examples keep their own native translation service and pipe.
 @Directive()
-export abstract class ChapterPage implements AfterViewChecked {
+export abstract class ChapterPage implements AfterViewChecked, OnInit {
   abstract readonly rerune: {
     state: Signal<ReRuneState>
+    ready(): Promise<void>
     checkForUpdates(): Promise<ReRuneUpdateResult>
     setVariant(value: string | ReRuneSetVariantOptions): Promise<void>
     setStaging(staging: boolean): Promise<void>
@@ -42,7 +43,7 @@ export abstract class ChapterPage implements AfterViewChecked {
   readonly variantError = signal(false)
   readonly requestedStaging = signal<boolean | null>(null)
   readonly stagingError = signal(false)
-  readonly systemLocale = signal(false)
+  readonly systemLocale = signal(savedLanguage === 'system')
   readonly availableLocales = computed(() => [...new Set([...Object.keys(messages), ...this.rerune.state().availableLocales])])
   readonly nativeNames: Record<string, string> = { en: 'English', de: 'Deutsch', es: 'Español', it: 'Italiano', pt: 'Português' }
   readonly showTools = new URLSearchParams(window.location.search).get('tools') === '1'
@@ -100,16 +101,21 @@ export abstract class ChapterPage implements AfterViewChecked {
     const number = new Intl.NumberFormat(this.locale())
     return { current: number.format(Math.min(this.completed() + 1, 2)), total: number.format(2) }
   }
+  ngOnInit() {
+    if (restoredLanguage === initialLanguage) return
+    const restore = () => { if (this.locale() === initialLanguage) this.setLocale(restoredLanguage) }
+    void this.rerune.ready().then(restore, restore)
+  }
   language(event: Event) {
     const value = (event.target as HTMLSelectElement).value
+    saveLanguage(value)
     this.systemLocale.set(value === 'system')
     if (value === 'system') this.systemLanguageChanged()
     else this.setLocale(value)
   }
   @HostListener('window:languagechange')
   systemLanguageChanged() {
-    if (this.systemLocale()) this.setLocale(navigator.languages.map(value => value.split('-')[0] ?? '')
-      .find(value => value in messages) ?? 'en')
+    if (this.systemLocale()) this.setLocale(systemLanguage())
   }
   async refresh() {
     if (this.refreshing()) return

@@ -15,7 +15,7 @@ pnpm dev:expo
 
 The app uses Expo **54.0.37**, React Native **0.81.5**, React **19.1.0**, and Hermes. Open it in an Expo SDK 54-compatible client or a development build that includes AsyncStorage.
 
-Tap the current locale to open the language dropdown, then choose a language. The selected locale has a checkmark. Tap the selector again or press Android Back to dismiss the menu. Pull down in the library or reader to refresh, or use the refresh control in the library, reader, or Reading settings.
+Tap the current locale to open the language dropdown, then choose a language. The selected locale has a checkmark. The app saves the choice, System default included, in AsyncStorage (`@react-native-async-storage/async-storage`, declared by the app) and restores it during startup, before the first screen. Tap the selector again or press Android Back to dismiss the menu. Pull down in the library or reader to refresh, or use the refresh control in the library, reader, or Reading settings.
 
 The background fills the screen edge-to-edge. `react-native-safe-area-context` keeps library, reader, sheets, loading, and error content clear of status bars, display cutouts, Android navigation bars, and the iOS home indicator, including in landscape. Status-bar icons are light; `expo-navigation-bar` and the Android app configuration keep three-button navigation legible on the dark background. See Expo's [safe-area guide](https://docs.expo.dev/versions/v54.0.0/sdk/safe-area-context/) and [navigation-bar API](https://docs.expo.dev/versions/v54.0.0/sdk/navigation-bar/).
 

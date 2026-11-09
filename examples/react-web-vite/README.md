@@ -143,7 +143,7 @@ If your app owns `.use(...)` plugins or depends on a global instance, keep that 
 1. Explore My library, Discover's genre filters, and the empty Saved shelf. Bookmark stories, read both chapters of each story, finish, and restart.
 2. Switch between English, German, Spanish, Italian, and Portuguese while reading. Additional SDK locales appear alongside bundled languages. Chapter progress, bookmarks, filters, tabs, and scroll remain in this session.
 3. Open Reading settings for the Main/`vip` edition switch, staging-mode switch, fixed `14.07.2026` interpolation sample, and `plural_sample` cardinal plural. Turn staging on to preview enabled drafts and off to restore published content. A banner stays visible while staging is active. Refresh from the library, reader, or settings.
-4. Configure your own publishable OTA ID. Publish a root translation or a distinct `vip` value, then refresh. Edition choice and SDK translation caches persist across reloads; reading state does not.
+4. Configure your own publishable OTA ID. Publish a root translation or a distinct `vip` value, then refresh. Edition choice, the picked language, and SDK translation caches persist across reloads; reading state does not. `src/i18n.ts` reads the remembered language before `ReRune.setup(...)`, so the first render is already in it.
 5. Block the OTA service or one locale request and refresh again. Partial results identify updated languages; failures retain existing text. Repeated taps start one check at a time.
 
 The date in settings is a fixed interpolation example. Refresh feedback describes the last manual check and remains visible until the next one.

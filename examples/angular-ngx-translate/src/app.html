@@ -8,9 +8,9 @@
           <strong>{{ story().title | translate }}</strong>
         } @else { <span class="wordmark"><img class="brand-logo" src="rerune-logo.png" alt="" aria-hidden="true"><span>ReRune</span></span> }
         <label class="language-picker"><svg chapterIcon="globe"></svg><span aria-hidden="true">{{ locale().toUpperCase() }}⌄</span>
-          <select [attr.aria-label]="'welcome_locale_label' | translate" [value]="systemLocale() ? 'system' : locale()" (change)="language($event)">
-            <option value="system">{{ 'welcome_locale_system_default' | translate }}</option>
-            @for (lang of availableLocales(); track lang) { <option [value]="lang">{{ nativeNames[lang] || rerune.state().localeNames[lang] || lang }}</option> }
+          <select [attr.aria-label]="'welcome_locale_label' | translate" (change)="language($event)">
+            <option value="system" [selected]="systemLocale()">{{ 'welcome_locale_system_default' | translate }}</option>
+            @for (lang of availableLocales(); track lang) { <option [value]="lang" [selected]="!systemLocale() && lang === locale()">{{ nativeNames[lang] || rerune.state().localeNames[lang] || lang }}</option> }
           </select>
         </label>
         @if (!reader()) { <button type="button" class="icon-button settings-button" [attr.aria-label]="'reading_settings' | translate" (click)="settings.showModal()"><svg chapterIcon="settings"></svg></button> }

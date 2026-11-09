@@ -153,4 +153,35 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
       expect(errors).toEqual([])
     })
   }
+  test(`${engine}: restores a saved dashboard-only language`, async ({ page, context }) => {
+    const remote = { online: true }
+    await context.route(/^https:\/\/(cdn\.rerune\.io|rerune-fixture\.invalid)\//, async route => {
+      const requestUrl = new URL(route.request().url())
+      if (!remote.online) return route.abort()
+      if (requestUrl.pathname.endsWith('/manifest.json')) {
+        return route.fulfill({ json: { version: 1, main_language: 'en', locales: Object.fromEntries(['en', 'de', 'fr'].map(locale => [locale, {
+          version: 1, minimum_delta_base_version: 1, url: `https://rerune-fixture.invalid/${locale}.json`,
+        }])) } })
+      }
+      await route.fulfill({ json: records(requestUrl.pathname.slice(1).replace('.json', ''), 1) })
+    })
+    const errors: string[] = []
+    page.on('pageerror', error => errors.push(String(error)))
+    const title = page.getByRole('heading', { level: 1 })
+    const picker = page.locator('select')
+    await page.goto(`http://127.0.0.1:${port}/`)
+    await expect(title).toHaveText('Live en 1')
+    await picker.selectOption('fr')
+    await expect(title).toHaveText('Live fr 1')
+    expect(await page.evaluate(() => localStorage.getItem('rerune-example-language'))).toBe('fr')
+    await page.reload()
+    await expect(title).toHaveText('Live fr 1')
+    await expect(picker).toHaveValue('fr')
+    // Offline, the SDK cache supplies the saved language.
+    remote.online = false
+    await page.reload()
+    await expect(title).toHaveText('Live fr 1')
+    await expect(picker).toHaveValue('fr')
+    expect(errors).toEqual([])
+  })
 }

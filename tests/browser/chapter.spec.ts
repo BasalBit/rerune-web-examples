@@ -94,4 +94,72 @@ for (const [engine, port] of [['react', 15173], ['ngx', 14201], ['transloco', 14
     await expect(page.locator('.library-page')).toBeVisible()
     await expect(page).toHaveURL(`http://127.0.0.1:${port}/`)
   })
+  test(`${engine}: remembers the picked language and System default across reloads`, async ({ browser }) => {
+    // A German system language shows that an empty store still starts in English.
+    const context = await browser.newContext({ locale: 'de-DE', reducedMotion: 'reduce' })
+    try {
+      await context.route('https://cdn.rerune.io/**', route => route.abort())
+      // Record each rendered title, so a restore cannot pass after showing English first.
+      await context.addInitScript(() => {
+        const shown: string[] = (window as unknown as { shownTitles: string[] }).shownTitles = []
+        new MutationObserver(() => {
+          const text = document.querySelector('h1')?.textContent?.trim()
+          if (text && shown.at(-1) !== text) shown.push(text)
+        }).observe(document, { subtree: true, childList: true, characterData: true })
+      })
+      const page = await context.newPage()
+      const errors: string[] = []
+      page.on('pageerror', error => errors.push(String(error)))
+      const title = page.getByRole('heading', { level: 1 })
+      const picker = page.locator('select')
+      const saved = () => page.evaluate(() => localStorage.getItem('rerune-example-language'))
+      const shownTitles = () => page.evaluate(() => (window as unknown as { shownTitles: string[] }).shownTitles)
+      const start = async () => { await page.waitForLoadState('networkidle'); await expect(picker).toBeVisible() }
+      await page.goto(`http://127.0.0.1:${port}/`)
+      await start()
+      await expect(title).toHaveText(resourcesByLocale.en.translation.welcome_title)
+      await expect(picker).toHaveValue('en')
+      expect(await saved()).toBeNull()
+      await picker.selectOption('es')
+      await expect(title).toHaveText(resourcesByLocale.es.translation.welcome_title)
+      expect(await saved()).toBe('es')
+      await page.reload()
+      await start()
+      await expect(title).toHaveText(resourcesByLocale.es.translation.welcome_title)
+      await expect(picker).toHaveValue('es')
+      await expect(page.locator('html')).toHaveAttribute('lang', 'es')
+      expect(await shownTitles()).not.toContain(resourcesByLocale.en.translation.welcome_title)
+      await picker.selectOption('system')
+      await expect(title).toHaveText(resourcesByLocale.de.translation.welcome_title)
+      expect(await saved()).toBe('system')
+      await page.reload()
+      await start()
+      await expect(title).toHaveText(resourcesByLocale.de.translation.welcome_title)
+      await expect(picker).toHaveValue('system')
+      expect(await shownTitles()).not.toContain(resourcesByLocale.en.translation.welcome_title)
+      expect(errors).toEqual([])
+    } finally { await context.close() }
+  })
+  for (const [failure, failStorage] of [
+    ['blocked', () => { Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new DOMException('Storage is blocked', 'SecurityError') } }) }],
+    ['full', () => { Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new DOMException('Storage is full', 'QuotaExceededError') } }],
+  ] as const) {
+    test(`${engine}: ${failure} storage keeps the English start and a working picker`, async ({ page, context }) => {
+      await context.route('https://cdn.rerune.io/**', route => route.abort())
+      await context.addInitScript(failStorage)
+      const errors: string[] = []
+      page.on('pageerror', error => errors.push(String(error)))
+      const title = page.getByRole('heading', { level: 1 })
+      await page.goto(`http://127.0.0.1:${port}/`)
+      await page.waitForLoadState('networkidle')
+      await expect(title).toHaveText(resourcesByLocale.en.translation.welcome_title)
+      await page.locator('select').selectOption('de')
+      await expect(title).toHaveText(resourcesByLocale.de.translation.welcome_title)
+      await page.reload()
+      await page.waitForLoadState('networkidle')
+      await expect(title).toHaveText(resourcesByLocale.en.translation.welcome_title)
+      await expect(page.locator('select')).toHaveValue('en')
+      expect(errors).toEqual([])
+    })
+  }
 }

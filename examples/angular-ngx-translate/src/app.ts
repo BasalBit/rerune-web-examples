@@ -4,7 +4,7 @@ import { of, delay } from 'rxjs'
 import { TranslateLoader, TranslatePipe, TranslateService, TranslateCompiler } from '@ngx-translate/core'
 import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler'
 import { ReRune, ReRuneService } from '@rerune/angular/ngx-translate'
-import { messages, publishId, staging } from '../../angular-shared/messages'
+import { initialLanguage, messages, publishId, staging } from '../../angular-shared/messages'
 import { ChapterPage } from '../../angular-shared/presentation'
 import { ChapterIcon, ChapterCover } from '../../angular-shared/artwork'
 
@@ -40,7 +40,7 @@ export const appConfig = {
       logLevel: 'off',
       updatePolicy: { checkOnStart: true, periodicIntervalInHours: 24 },
     }, {
-      lang: 'en', fallbackLang: 'en',
+      lang: initialLanguage, fallbackLang: 'en',
       loader: { provide: TranslateLoader, useClass: DemoLoader },
       compiler: { provide: TranslateCompiler, useClass: TranslateMessageFormatCompiler },
     }),

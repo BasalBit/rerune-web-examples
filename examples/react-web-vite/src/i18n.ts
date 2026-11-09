@@ -3,9 +3,21 @@ import type { InitOptions } from 'i18next'
 
 import { resourcesByLocale } from '../../shared/messages'
 
+// The app remembers the picker choice, not the SDK. A storage failure keeps the English start.
+const LANGUAGE_KEY = 'rerune-example-language'
+export const savedLanguage = (() => {
+  try { return localStorage.getItem(LANGUAGE_KEY) } catch { return null }
+})()
+export function saveLanguage(value: string) {
+  try { localStorage.setItem(LANGUAGE_KEY, value) } catch { /* The choice lasts for this session only. */ }
+}
+export function systemLanguage() {
+  return navigator.languages.map(value => value.split('-')[0] ?? '').find(value => ['en', 'de', 'es', 'it', 'pt'].includes(value)) ?? 'en'
+}
+
 export const i18nOptions = {
   initImmediate: false,
-  lng: 'en',
+  lng: savedLanguage === 'system' ? systemLanguage() : savedLanguage || 'en',
   fallbackLng: 'en',
   defaultNS: 'translation',
   ns: ['translation'],

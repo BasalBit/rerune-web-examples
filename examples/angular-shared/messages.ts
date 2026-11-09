@@ -27,3 +27,21 @@ export const publishId = typeof window === 'undefined' ? defaultPublishId
   : new URLSearchParams(window.location.search).get('publishId')?.trim() || defaultPublishId
 export const staging = typeof window !== 'undefined'
   && new URLSearchParams(window.location.search).get('staging') === 'true'
+
+// The app remembers the picker choice, not the SDK. A storage failure keeps the English start.
+const languageKey = 'rerune-example-language'
+export const savedLanguage = (() => {
+  try { return localStorage.getItem(languageKey) } catch { return null }
+})()
+export function saveLanguage(value: string) {
+  try { localStorage.setItem(languageKey, value) } catch { /* The choice lasts for this session only. */ }
+}
+export function systemLanguage() {
+  return navigator.languages.map(value => value.split('-')[0] ?? '').find(value => value in messages) ?? 'en'
+}
+// Both examples start in a bundled language through their provider
+// configuration. A saved dashboard-only language is applied once ReRune is
+// ready, like a picker change, so the page keeps English while it downloads.
+// An earlier switch would reach the engine first: Transloco then shows raw keys.
+export const restoredLanguage = savedLanguage === 'system' ? systemLanguage() : savedLanguage || 'en'
+export const initialLanguage = restoredLanguage in messages ? restoredLanguage : 'en'
