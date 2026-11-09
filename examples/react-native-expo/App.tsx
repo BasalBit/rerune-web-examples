@@ -26,13 +26,12 @@ export default function App() {
   useEffect(() => { if (Platform.OS === 'android') NavigationBar.setStyle('dark') }, [])
   useEffect(() => {
     // The app, not the SDK, remembers the picked language. The first screen waits
-    // for this read (and the fonts), so it opens in the remembered language; a
-    // failed read starts in English.
-    void Promise.resolve().then(() => AsyncStorage.getItem(LANGUAGE_KEY)).catch(() => null).then(language => {
+    // for this read (and the fonts), so it opens with that language selected. A
+    // failed read starts in English; the screen appears whatever the read did.
+    void Promise.resolve().then(() => AsyncStorage.getItem(LANGUAGE_KEY)).then(language => {
       if (language === 'system') setSavedSystem(true)
       if (language) void client.i18n.changeLanguage(language === 'system' ? systemLanguage() : language)
-      setLanguageRead(true)
-    })
+    }).catch(() => undefined).finally(() => setLanguageRead(true))
   }, [])
   return <SafeAreaProvider initialMetrics={initialWindowMetrics}>
     <StatusBar barStyle="light-content" />
