@@ -4,7 +4,7 @@ A runnable ReRune reading app using [@rerune/angular 1.9.0](https://www.npmjs.co
 
 ## Run
 
-Use Node 24.22.1 or newer and pnpm 10.8.1. From a terminal:
+Use Node 24.22.3 or newer and pnpm 10.8.1. From a terminal:
 
 ```bash
 git clone https://github.com/BasalBit/rerune-web-examples.git
